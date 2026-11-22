@@ -41,7 +41,7 @@ export function CaptionBand({
     <div
       data-testid="caption"
       data-mode="band"
-      className="pointer-events-auto absolute inset-x-0 top-0 flex h-16 items-center gap-3 border-t border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900"
+      className="pointer-events-auto absolute inset-x-0 top-0 flex h-12 items-center gap-3 border-t border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900"
     >
       {bubble && (
         <>
@@ -50,7 +50,7 @@ export function CaptionBand({
           </div>
           <div
             data-testid="caption-text"
-            className="max-h-full min-w-0 flex-1 overflow-y-auto text-sm leading-snug text-gray-800 scrollbar-hide dark:text-gray-100"
+            className="max-h-10 min-w-0 flex-1 overflow-y-auto text-sm leading-snug text-gray-800 scrollbar-hide dark:text-gray-100"
           >
             <span className="mr-2 font-medium text-gray-500 dark:text-gray-400">{bubble.name}</span>
             {bubble.text}

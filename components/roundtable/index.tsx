@@ -848,7 +848,8 @@ export function Roundtable({
         className={cn(
           'h-0 w-full relative overflow-visible',
           // The caption band hangs below this zero-height layer in margin the stage gives up.
-          captionMode === 'band' && 'mb-16',
+          // Full-screen also keeps a 5rem row clear for the fixed transport bar and dock.
+          captionMode === 'band' && (isPresenting ? 'mb-32' : 'mb-12'),
           // Sized against the stage, which may be a pane: `cqw` in the widths below.
           overStage ? 'z-20 @container' : 'z-10',
         )}
@@ -892,7 +893,7 @@ export function Roundtable({
             )}
             style={{ right: chatCollapsed === false ? (chatAreaWidth ?? 320) : 0 }}
           >
-            <div className="mb-3 px-2 py-1 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
+            <div data-testid="presentation-toolbar" className="mb-3 px-2 py-1 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
               {toolbar}
             </div>
           </div>
@@ -1096,6 +1097,7 @@ export function Roundtable({
 
         {/* ── Right-side stack: bubble + dock — flex column, no hardcoded px ── */}
         <div
+          data-testid="presentation-right-stack"
           className={cn(
             'z-[48] flex flex-col items-end gap-3 pointer-events-none transition-[right] duration-300',
             overStage ? 'absolute bottom-3 right-4' : 'fixed bottom-5',

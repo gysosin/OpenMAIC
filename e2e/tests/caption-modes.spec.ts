@@ -118,33 +118,58 @@ async function persistedCaption(page: Page) {
 test.describe('Caption modes', () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
 
-  test('band mode keeps a very long caption off the slide and scrolls it', async ({
-    page,
-  }, testInfo) => {
-    await openCourse(page, LONG_CAPTION.repeat(2));
-    await enterFullscreen(page);
-    await startLecture(page);
-    const caption = page.getByTestId('caption');
-    await expect(caption).toHaveAttribute('data-mode', 'band');
-    await expect(page.getByTestId('caption-text')).toContainText('The caption must scroll');
+  const BAND_VIEWPORTS = [
+    { width: 1920, height: 1080, theme: 'light' },
+    { width: 1920, height: 1080, theme: 'dark' },
+    { width: 1366, height: 768, theme: 'light' },
+  ] as const;
+  for (const { width, height, theme } of BAND_VIEWPORTS) {
+    test(`band mode ${width}x${height} ${theme}: slide, controls and viewport edge stay clear of a long caption`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height });
+      await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
+      await openCourse(page, LONG_CAPTION.repeat(2));
+      await enterFullscreen(page);
+      await startLecture(page);
+      const caption = page.getByTestId('caption');
+      await expect(caption).toHaveAttribute('data-mode', 'band');
+      await expect(page.getByTestId('caption-text')).toContainText('The caption must scroll');
+      // Controls auto-hide in fullscreen: wake them so their rects are the worst case.
+      await page.mouse.move(width / 2, height / 2);
+      await expect(page.getByTestId('presentation-toolbar')).toBeVisible();
 
-    const stage = await rect(page, 'stage-box');
-    const band = await rect(page, 'caption');
-    expect(intersects(stage, band)).toBe(false);
-    expect(band.y).toBeGreaterThanOrEqual(stage.y + stage.height - 1);
-    expect(band.y + band.height).toBeLessThanOrEqual(1080 + 1);
-    expect(band.height).toBeLessThanOrEqual(72);
+      const stage = await rect(page, 'stage-box');
+      const band = await rect(page, 'caption');
+      const text = await rect(page, 'caption-text');
+      expect(intersects(stage, band)).toBe(false);
+      expect(band.y).toBeGreaterThanOrEqual(stage.y + stage.height - 1);
+      // The right stack's own box can be taller than what shows; its last child is the dock cluster.
+      const controls = {
+        toolbar: page.getByTestId('presentation-toolbar'),
+        dock: page.getByTestId('presentation-right-stack').locator(':scope > *').last(),
+      };
+      for (const [name, locator] of Object.entries(controls)) {
+        const box = (await locator.boundingBox())!;
+        const where = `${name} ${JSON.stringify(box)} text ${JSON.stringify(text)} band ${JSON.stringify(band)}`;
+        expect(intersects(text, box), `caption text vs ${where}`).toBe(false);
+        expect(intersects(band, box), `band vs ${where}`).toBe(false);
+      }
+      expect(text.y + text.height).toBeLessThanOrEqual(height - 1);
 
-    // The text is revealed as it is spoken: once it is long, it scrolls inside the band.
-    await expect
-      .poll(() =>
-        page
-          .getByTestId('caption-text')
-          .evaluate((el) => el.scrollHeight > el.clientHeight && el.clientHeight <= 64),
-      )
-      .toBe(true);
-    await page.screenshot({ path: testInfo.outputPath('caption-band-fullscreen.png') });
-  });
+      // At most two lines show; the rest scrolls inside the band.
+      await expect
+        .poll(() =>
+          page
+            .getByTestId('caption-text')
+            .evaluate((el) => el.scrollHeight > el.clientHeight && el.clientHeight <= 40),
+        )
+        .toBe(true);
+      await page.screenshot({
+        path: testInfo.outputPath(`caption-band-fullscreen-${width}-${theme}.png`),
+      });
+    });
+  }
 
   test('band mode with no caption still reserves its strip clear of the slide', async ({
     page,
