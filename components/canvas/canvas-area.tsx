@@ -12,7 +12,6 @@ import type { CanvasToolbarProps } from '@/components/canvas/canvas-toolbar';
 import type { Scene, StageMode } from '@/lib/types/stage';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { ContainBox } from '@/components/edit/ContainBox';
-import { useInWorkbenchPanel } from '@/lib/workbench/panel-context';
 import type { PPTElement } from '@openmaic/dsl';
 import type { WhiteboardElementReference } from '@/lib/types/chat';
 import { SlideElementPickOverlay } from '@/components/canvas/slide-element-pick-overlay';
@@ -70,7 +69,6 @@ export function CanvasArea({
   onCancelElementPick,
 }: CanvasAreaProps) {
   const { t } = useI18n();
-  const inWorkbenchPanel = useInWorkbenchPanel();
   const showControls = mode === 'playback' && !whiteboardOpen;
   const showPlayHint =
     showControls &&
@@ -115,7 +113,6 @@ export function CanvasArea({
         )}
       >
         <StageViewport
-          workbench={inWorkbenchPanel}
           fillContainer={
             currentScene?.type === 'interactive' ||
             (currentScene?.content.type === 'pbl' && !!currentScene.content.projectV3)
@@ -315,13 +312,11 @@ export function CanvasArea({
 }
 
 function StageViewport({
-  workbench,
   fillContainer,
   className,
   onClick,
   children,
 }: {
-  readonly workbench: boolean;
   readonly fillContainer: boolean;
   readonly className?: string;
   readonly onClick?: (event: React.MouseEvent) => void;
@@ -334,19 +329,9 @@ function StageViewport({
       </div>
     );
   }
-  if (!workbench) {
-    return (
-      <div
-        className={cn('aspect-[16/9] h-full max-h-full max-w-full', className)}
-        onClick={onClick}
-      >
-        {children}
-      </div>
-    );
-  }
   return (
     <ContainBox fit="contain" className={className}>
-      <div className="relative h-full w-full" onClick={onClick}>
+      <div data-testid="stage-box" className="relative h-full w-full" onClick={onClick}>
         {children}
       </div>
     </ContainBox>
