@@ -44,6 +44,7 @@ import {
 import type { PromptId } from './prompts/types.js';
 import { buildPrompt, PROMPT_IDS } from './prompts/index.js';
 import { buildSlideContentPrompt } from './scene-prompts.js';
+import { applyLayoutGuard } from './layout-guard.js';
 import {
   formatAdditionalWidgetRequirements,
   formatWidgetVariables,
@@ -888,7 +889,7 @@ async function generateSlideContent(
   }
 
   return {
-    elements: processedElements,
+    elements: applyLayoutGuard(processedElements, 562.5),
     background,
     remark: generatedData.remark || outline.description,
   };
