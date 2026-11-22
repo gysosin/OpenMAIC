@@ -131,3 +131,12 @@ export {
   interactiveLibraryPrompt,
   interactiveLibraryUrl,
 } from './interactive-libraries.js';
+export { GATES, validateDemoSpec } from './demo-spec.js';
+export type {
+  DemoControl,
+  DemoObject,
+  DemoSpec,
+  DemoSpecResult,
+  DemoStep,
+} from './demo-spec.js';
+export { buildDemoShell } from './demo-shell.js';
