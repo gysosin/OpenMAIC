@@ -1882,7 +1882,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
         ref={stageRef}
         data-playback-stage=""
         className={cn(
-          'flex-1 flex overflow-hidden bg-gray-50 dark:bg-gray-900',
+          'flex-1 flex overflow-hidden bg-background',
           isPresenting && !controlsVisible && 'cursor-none',
         )}
       >
@@ -2193,7 +2193,6 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
             width={chatAreaWidth}
             onWidthChange={setChatAreaWidth}
             collapsed={chatAreaCollapsed}
-            onCollapseChange={setChatAreaCollapsed}
             activeBubbleId={activeBubbleId}
             onActiveBubble={(id) => setActiveBubbleId(id)}
             currentSceneId={currentSceneId}
