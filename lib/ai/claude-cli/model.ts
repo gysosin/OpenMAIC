@@ -1,6 +1,3 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { APICallError, UnsupportedFunctionalityError } from 'ai';
 import { assertModelId, buildCliArgs, buildCliEnv, clampEffort } from './args';
 import { runClaude, setClaudeCliConcurrency } from './process';
@@ -44,6 +41,12 @@ async function* run(
   warnings: Warning[],
 ): AsyncGenerator<StreamPart> {
   const { systemText, stdinPayload } = buildPromptPayload(options.prompt);
+  // Node built-ins load on call so client bundles that import providers.ts stay clean.
+  const [{ mkdir, mkdtemp, rm, writeFile }, { tmpdir }, { join }] = await Promise.all([
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'node:fs/promises'),
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'node:os'),
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'node:path'),
+  ]);
   const dir = await mkdtemp(join(tmpdir(), 'claude-cli-'));
   const cwd = join(dir, 'work'); // empty, so the CLI has nothing to read
   const systemPromptFile = join(dir, 'system.txt');

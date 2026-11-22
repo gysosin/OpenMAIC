@@ -1,5 +1,3 @@
-import { spawn } from 'node:child_process';
-import { createInterface } from 'node:readline';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('ClaudeCLI');
@@ -58,6 +56,12 @@ export interface RunOptions {
  * 1.2 s. A non-zero exit or a spawn failure throws.
  */
 export async function* runClaude(opts: RunOptions): AsyncGenerator<string> {
+  // Loaded on call, not at import: providers.ts is also imported by client components,
+  // and a static Node built-in import breaks their browser bundle.
+  const [{ spawn }, { createInterface }] = await Promise.all([
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'node:child_process'),
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'node:readline'),
+  ]);
   const release = await acquire(opts.signal);
   const child = spawn(opts.executablePath, opts.args, { cwd: opts.cwd, env: opts.env });
   let spawnError: Error | undefined;
