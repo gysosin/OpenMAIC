@@ -9,9 +9,7 @@ import { useBrand, useIsDesktop } from '@/lib/brand/brand-context';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { useSettingsStore } from '@/lib/store/settings';
 import { useInWorkbenchPanel } from '@/lib/workbench/panel-context';
-
-const MIN_WIDTH = 170;
-const MAX_WIDTH = 400;
+import { clampRegionWidth } from '@/components/classroom/shell/clamp-region-width';
 
 /** Collapsed with no other way back: just wide enough to hold the expand chevron. */
 const HANDLE_WIDTH = 16;
@@ -36,6 +34,8 @@ interface PageRailProps {
    */
   readonly keepHandle?: boolean;
   readonly testId?: string;
+  /** False where another control (the transport bar's toggle) is the rail's one fold control. */
+  readonly showCollapseButton?: boolean;
   /** The page list. Stays mounted while collapsed, so it keeps its scroll. */
   readonly children: ReactNode;
 }
@@ -49,6 +49,7 @@ export function PageRail({
   onCollapseChange,
   keepHandle = false,
   testId,
+  showCollapseButton = true,
   children,
 }: PageRailProps) {
   const { t } = useI18n();
@@ -90,10 +91,7 @@ export function PageRail({
   const handleResizeMove = (e: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || e.pointerId !== drag.pointerId) return;
-    drag.lastWidth = Math.min(
-      MAX_WIDTH,
-      Math.max(MIN_WIDTH, drag.startWidth + e.clientX - drag.startX),
-    );
+    drag.lastWidth = clampRegionWidth('rail', drag.startWidth + e.clientX - drag.startX);
     if (railRef.current) railRef.current.style.width = `${drag.lastWidth}px`;
   };
 
@@ -141,7 +139,7 @@ export function PageRail({
         width: collapsed ? collapsedWidth : width,
         transition: dragging || prefersReducedMotion ? 'none' : 'width 0.3s ease',
       }}
-      className="relative z-20 flex h-full shrink-0 flex-col border-r border-gray-100 bg-white/80 shadow-[2px_0_24px_rgba(0,0,0,0.02)] backdrop-blur-xl dark:border-gray-800 dark:bg-slate-900/80"
+      className="relative z-20 flex h-full shrink-0 flex-col border-r border-border bg-surface"
     >
       {collapsed ? null : (
         <div
@@ -150,9 +148,9 @@ export function PageRail({
           onPointerMove={handleResizeMove}
           onPointerUp={handleResizeEnd}
           onPointerCancel={handleResizeEnd}
-          className="group absolute right-0 top-0 bottom-0 z-50 w-1.5 cursor-col-resize touch-none transition-colors hover:bg-purple-400/30 active:bg-purple-500/40 dark:hover:bg-purple-600/30 dark:active:bg-purple-500/40"
+          className="group absolute right-0 top-0 bottom-0 z-50 w-1.5 cursor-col-resize touch-none transition-colors hover:bg-primary-subtle active:bg-primary-subtle"
         >
-          <div className="absolute right-0.5 top-1/2 h-8 w-0.5 -translate-y-1/2 rounded-full bg-gray-300 transition-colors group-hover:bg-purple-400 dark:bg-gray-600 dark:group-hover:bg-purple-500" />
+          <div className="absolute right-0.5 top-1/2 h-8 w-0.5 -translate-y-1/2 rounded-full bg-border-strong transition-colors group-hover:bg-primary" />
         </div>
       )}
 
@@ -189,16 +187,18 @@ export function PageRail({
               <img src={brand.logoSrc} alt={brand.productName} className="h-6 w-auto" />
             </button>
           )}
-          <button
-            type="button"
-            data-testid="page-rail-collapse"
-            onClick={() => onCollapseChange(true)}
-            aria-label={t('edit.nav.collapse')}
-            title={t('edit.nav.collapse')}
-            className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-gray-500 ring-1 ring-black/[0.04] transition-all duration-200 hover:bg-gray-200/90 hover:text-gray-700 active:scale-90 dark:bg-gray-800/80 dark:text-gray-400 dark:ring-white/[0.06] dark:hover:bg-gray-700/90 dark:hover:text-gray-200"
-          >
-            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
-          </button>
+          {showCollapseButton && (
+            <button
+              type="button"
+              data-testid="page-rail-collapse"
+              onClick={() => onCollapseChange(true)}
+              aria-label={t('edit.nav.collapse')}
+              title={t('edit.nav.collapse')}
+              className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-gray-500 ring-1 ring-black/[0.04] transition-all duration-200 hover:bg-gray-200/90 hover:text-gray-700 active:scale-90 dark:bg-gray-800/80 dark:text-gray-400 dark:ring-white/[0.06] dark:hover:bg-gray-700/90 dark:hover:text-gray-200"
+            >
+              <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
         {children}
       </div>
