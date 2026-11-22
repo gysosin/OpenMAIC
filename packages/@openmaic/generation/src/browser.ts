@@ -27,3 +27,4 @@ export {
   interactiveAssetBaseUrl,
   interactiveLibraryUrl,
 } from './interactive-libraries.js';
+export { buildDemoShell } from './demo-shell.js';

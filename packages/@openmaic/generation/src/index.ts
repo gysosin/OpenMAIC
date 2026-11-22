@@ -133,10 +133,17 @@ export {
 } from './interactive-libraries.js';
 export { GATES, validateDemoSpec } from './demo-spec.js';
 export type {
+  CameraTarget,
+  Checkpoint,
+  ColorName,
   DemoControl,
   DemoObject,
   DemoSpec,
   DemoSpecResult,
   DemoStep,
+  GateKind,
+  PrimitiveType,
+  Scalar,
+  Vec3,
 } from './demo-spec.js';
 export { buildDemoShell } from './demo-shell.js';

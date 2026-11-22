@@ -3,7 +3,7 @@
  * adder and an 8-bit register counting powers of two. Used by the sandbox lab
  * page and e2e/tests/demo-kit.spec.ts.
  */
-import type { DemoSpec } from '@/lib/demo-kit/core/types';
+import type { DemoSpec } from '@openmaic/generation';
 
 export const HALF_ADDER: DemoSpec = {
   version: 1,
@@ -143,13 +143,3 @@ export const DEMO_FIXTURES = { 'half-adder': HALF_ADDER, 'bit-register': BIT_REG
 export type DemoFixtureName = keyof typeof DEMO_FIXTURES;
 
 export const DEMO_KIT_URL = '/vendor/interactive/demo-kit@1/demo-kit.js';
-
-/**
- * The scene shell: the spec as an inert JSON block plus the kit script. `<`
- * is escaped so no spec string can close the script element. Story 3.1 owns
- * the production builder (packages/@openmaic/generation/src/demo-shell.ts).
- */
-export function demoShellHtml(spec: DemoSpec, theme: 'light' | 'dark', kitUrl = DEMO_KIT_URL): string {
-  const json = JSON.stringify(spec).replace(/</g, '\\u003c');
-  return `<!doctype html><html data-theme="${theme}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><script type="application/json" id="demo-spec">${json}</script><script src="${kitUrl}"></script></body></html>`;
-}
