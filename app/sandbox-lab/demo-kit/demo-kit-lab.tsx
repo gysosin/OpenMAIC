@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-import { DEMO_FIXTURES, demoShellHtml, type DemoFixtureName } from './fixtures';
+import { buildDemoShell } from '@openmaic/generation/browser';
+
+import { DEMO_FIXTURES, DEMO_KIT_URL, type DemoFixtureName } from './fixtures';
 
 const NAMES = Object.keys(DEMO_FIXTURES) as DemoFixtureName[];
 
@@ -15,7 +17,15 @@ export default function DemoKitLab() {
   const frames = useRef<Partial<Record<DemoFixtureName, HTMLIFrameElement | null>>>({});
   // The shell is built once with the starting theme; later changes go through SET_THEME.
   const [shells] = useState(() =>
-    Object.fromEntries(NAMES.map((name) => [name, demoShellHtml(DEMO_FIXTURES[name], 'dark')])),
+    Object.fromEntries(
+      NAMES.map((name) => [
+        name,
+        buildDemoShell(DEMO_FIXTURES[name], { kitUrl: DEMO_KIT_URL, title: name, lang: 'en' }).replace(
+          '<html ',
+          '<html data-theme="dark" ',
+        ),
+      ]),
+    ),
   );
 
   useEffect(() => {

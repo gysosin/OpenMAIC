@@ -12,7 +12,8 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 
-import { DEMO_FIXTURES, DEMO_KIT_URL, demoShellHtml, type DemoFixtureName } from '../../app/sandbox-lab/demo-kit/fixtures';
+import { buildDemoShell } from '../../packages/@openmaic/generation/src/demo-shell';
+import { DEMO_FIXTURES, DEMO_KIT_URL, type DemoFixtureName } from '../../app/sandbox-lab/demo-kit/fixtures';
 
 const KIT_FILE = resolve(process.cwd(), 'public', `.${DEMO_KIT_URL}`);
 const SHOTS = resolve(process.cwd(), 'test-results/demo-kit');
@@ -32,7 +33,11 @@ declare global {
 async function openFixture(page: Page, name: DemoFixtureName, theme: 'light' | 'dark') {
   const kit = await readFile(KIT_FILE, 'utf8');
   await page.route('**/__demo-kit-fixture', (route) =>
-    route.fulfill({ contentType: 'text/html', body: demoShellHtml(DEMO_FIXTURES[name], theme) }),
+    route.fulfill({ contentType: 'text/html', body: buildDemoShell(DEMO_FIXTURES[name], { kitUrl: DEMO_KIT_URL, title: name, lang: 'en' }).replace(
+        '<html ',
+        `<html data-theme="${theme}" `,
+      ),
+    }),
   );
   await page.route(`**${DEMO_KIT_URL}`, (route) => route.fulfill({ contentType: 'text/javascript', body: kit }));
   const errors: string[] = [];

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 import { validateDemoSpec } from '@openmaic/generation';
+import { DEMO_FIXTURES } from '@/app/sandbox-lab/demo-kit/fixtures';
 
 const halfAdder = () => ({
   version: 1,
@@ -102,5 +103,34 @@ describe('validateDemoSpec', () => {
       title: 'Half adder',
     });
     expect(r.ok).toBe(true);
+  });
+
+  test.each(Object.entries(DEMO_FIXTURES))('kit fixture %s validates with nothing dropped', (_n, spec) => {
+    const r = validateDemoSpec(spec);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.spec).toEqual(spec);
+  });
+
+  test('rejects unsafe colours, parent cycles, huge heights grids and unknown set targets', () => {
+    const raw = {
+      version: 1,
+      kind: 'scene3d',
+      title: 't',
+      objects: [
+        { id: 'a', type: 'group', parent: 'b' },
+        { id: 'b', type: 'group', parent: 'a' },
+        { id: 'c', type: 'box', color: 'url(javascript:alert(1))' },
+        { id: 's', type: 'surface', heights: Array.from({ length: 1000 }, () => Array(1000).fill(0)) },
+      ],
+      steps: [{ id: 's1', set: { 'ghost.value': 1, 'c.bogus': 1, 'c.color': 'red;x' } }],
+    };
+    const p = errPaths(raw);
+    expect(p).toContain('objects.0.parent');
+    expect(p).toContain('objects.1.parent');
+    expect(p).toContain('objects.2.color');
+    expect(p).toContain('objects.3.heights');
+    expect(p).toContain('steps.0.set.ghost.value');
+    expect(p).toContain('steps.0.set.c.bogus');
+    expect(p).toContain('steps.0.set.c.color');
   });
 });
