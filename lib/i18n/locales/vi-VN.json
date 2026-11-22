@@ -839,6 +839,14 @@
   "roundtable": {
     "teacher": "GIẢNG VIÊN",
     "you": "BẠN",
+    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
+    "captionMove": "Move caption",
+    "captionMode": {
+      "band": "band",
+      "float": "floating",
+      "pill": "chip",
+      "off": "off"
+    },
     "inputPlaceholder": "Nhập tin nhắn…",
     "listening": "Đang nghe…",
     "processing": "Đang xử lý…",

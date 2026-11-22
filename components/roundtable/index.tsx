@@ -230,6 +230,7 @@ export function Roundtable({
   // layer as full-screen, anchored to the stage instead of the window.
   const overStage = !isPresenting && dock.collapsed && !courseEndOpen;
   const setDockCollapsed = useSettingsStore((state) => state.setDockCollapsed);
+  const captionMode = useSettingsStore((s) => s.captionMode);
   const ttsMuted = useSettingsStore((s) => s.ttsMuted);
   const setTTSMuted = useSettingsStore((s) => s.setTTSMuted);
   // The workspace's tts and asr slots decide whether narration and speech
@@ -532,6 +533,7 @@ export function Roundtable({
 
         case 't':
         case 'T':
+          if (e.shiftKey) break; // Shift+T cycles the caption mode
           e.preventDefault();
           handleToggleInput();
           break;
@@ -845,6 +847,8 @@ export function Roundtable({
         data-testid="roundtable-speech-layer"
         className={cn(
           'h-0 w-full relative overflow-visible',
+          // The caption band hangs below this zero-height layer in margin the stage gives up.
+          captionMode === 'band' && 'mb-16',
           // Sized against the stage, which may be a pane: `cqw` in the widths below.
           overStage ? 'z-20 @container' : 'z-10',
         )}
@@ -855,7 +859,7 @@ export function Roundtable({
           participants={initialParticipants}
           speakingAgentId={speakingAgentId ?? null}
           isTopicPending={!!isTopicPending}
-          side="left"
+          userAvatar={userAvatar}
           onBubbleClick={handlePresentationBubbleClick}
           audioIndicatorState={audioIndicatorState ?? 'idle'}
           buttonState={enrichedPlaybackView?.buttonState}
@@ -1100,20 +1104,6 @@ export function Roundtable({
             overStage ? undefined : { right: chatCollapsed ? 20 : 20 + (chatAreaWidth ?? 320) }
           }
         >
-          {/* Right-side speech bubble (flows above dock via flex) */}
-          <PresentationSpeechOverlay
-            playbackView={enrichedPlaybackView}
-            participants={initialParticipants}
-            speakingAgentId={speakingAgentId ?? null}
-            isTopicPending={!!isTopicPending}
-            userAvatar={userAvatar}
-            side="right"
-            onBubbleClick={handlePresentationBubbleClick}
-            audioIndicatorState={audioIndicatorState ?? 'idle'}
-            buttonState={enrichedPlaybackView?.buttonState}
-            isPaused={isDiscussionPaused || engineMode === 'paused'}
-          />
-
           {/* Suggested replies — draft user bubble above the dock */}
           <AnimatePresence>
             {showSuggestedReplies && (

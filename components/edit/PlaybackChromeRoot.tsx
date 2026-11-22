@@ -231,6 +231,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     const sidebarCollapsed = useSettingsStore((s) => s.sidebarCollapsed);
     const setSidebarCollapsed = useSettingsStore((s) => s.setSidebarCollapsed);
     const chatAreaWidth = useSettingsStore((s) => s.chatAreaWidth);
+    const captionMode = useSettingsStore((s) => s.captionMode);
     const setChatAreaWidth = useSettingsStore((s) => s.setChatAreaWidth);
     const chatAreaCollapsed = useSettingsStore((s) => s.chatAreaCollapsed);
     const setChatAreaCollapsed = useSettingsStore((s) => s.setChatAreaCollapsed);
@@ -1996,8 +1997,9 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
             <div
               className={cn(
                 'transition-opacity duration-300',
-                !isPresenting && 'shrink-0',
-                isPresenting && 'absolute inset-x-0 bottom-0 z-20',
+                (!isPresenting || captionMode === 'band') && 'shrink-0',
+                // A caption band is reserved height under the slide, not a layer over it.
+                isPresenting && captionMode !== 'band' && 'absolute inset-x-0 bottom-0 z-20',
               )}
             >
               <Roundtable

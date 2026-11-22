@@ -839,6 +839,14 @@
   "roundtable": {
     "teacher": "教師",
     "you": "あなた",
+    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
+    "captionMove": "Move caption",
+    "captionMode": {
+      "band": "band",
+      "float": "floating",
+      "pill": "chip",
+      "off": "off"
+    },
     "inputPlaceholder": "メッセージを入力...",
     "listening": "聞いています...",
     "processing": "処理中...",
