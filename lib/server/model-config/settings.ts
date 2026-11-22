@@ -43,6 +43,8 @@ import {
   type ProviderPreset,
 } from '@/lib/config/provider-presets';
 import { validateClientBaseUrl } from '@/lib/server/ssrf-guard';
+import { getProvider, isDeploymentOnlyProviderType } from '@/lib/ai/providers';
+import type { ProviderId } from '@/lib/types/provider';
 import {
   presetOfficialRegionalEndpoint,
   presetRegionalEndpointTemplate,
@@ -395,6 +397,10 @@ function officialEndpointOf(provider: Pick<Provider, 'preset' | 'baseUrl'>): str
 function workspacePresetProblem(preset: ProviderPreset): string | undefined {
   if (preset.capabilities.chat?.registryId === 'bedrock') {
     return 'Amazon Bedrock can only be configured by the deployment (openmaic.yml)';
+  }
+  const chatProvider = preset.capabilities.chat?.registryId;
+  if (chatProvider && isDeploymentOnlyProviderType(getProvider(chatProvider as ProviderId)?.type)) {
+    return `${preset.name} can only be configured by the deployment (openmaic.yml)`;
   }
   // The settings take one key per provider; a key pair stays in openmaic.yml.
   if (preset.requiresCredentials) {

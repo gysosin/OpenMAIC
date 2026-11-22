@@ -344,6 +344,7 @@ const GENERIC_ID_PARTS = new Set([
   'api',
   'asr',
   'browser',
+  'cli',
   'cloud',
   'custom',
   'document',
