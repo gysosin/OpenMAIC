@@ -37,6 +37,7 @@ import {
 } from '@/lib/classroom/course-end';
 import { sessionBuildsCourse, useWorkbenchStore } from '@/lib/workbench/session-store';
 import { producerSessionRunning, useRunningSessions } from '@/lib/workbench/running-sessions';
+import { useWorkbenchProEditing } from '@/lib/workbench/use-workbench-pro-edit';
 import { onQuizReviewed } from '@/lib/classroom/quiz-reviewed';
 import { loadQuizAttemptState } from '@/lib/quiz/runtime';
 import { useCanvasStore } from '@/lib/store/canvas';
@@ -174,6 +175,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     ref,
   ) {
     const { t } = useI18n();
+    useWorkbenchProEditing(); // slide fills its stage box; the editor keeps the 90% margin
     const {
       mode,
       stage,
