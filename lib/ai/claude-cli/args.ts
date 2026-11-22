@@ -20,6 +20,18 @@ export function clampEffort(effort: unknown): CliEffort | undefined {
   }
 }
 
+const MODEL_ID = /^[a-z0-9][a-z0-9.-]*$/;
+
+/**
+ * A model id becomes a CLI argument, so it is checked against a strict pattern
+ * (lowercase alphanumerics, dots and dashes, never a leading dash) and passed
+ * as `--model=<id>`: it can never be read as another flag.
+ */
+export function assertModelId(modelId: string): void {
+  if (!MODEL_ID.test(modelId))
+    throw new Error(`Invalid Claude CLI model id: ${JSON.stringify(modelId)}`);
+}
+
 /**
  * argv for one call. `--safe-mode` (not `--bare`) keeps the subscription login
  * while skipping CLAUDE.md, hooks, plugins, skills, MCP and memory.
@@ -29,6 +41,7 @@ export function buildCliArgs(opts: {
   systemPromptFile: string;
   effort?: CliEffort;
 }): string[] {
+  assertModelId(opts.modelId);
   return [
     '-p',
     '--output-format',
@@ -45,9 +58,8 @@ export function buildCliArgs(opts: {
     '--max-turns',
     '1',
     '--no-session-persistence',
-    '--model',
-    opts.modelId,
-    ...(opts.effort ? ['--effort', opts.effort] : []),
+    `--model=${opts.modelId}`,
+    ...(opts.effort ? [`--effort=${opts.effort}`] : []),
   ];
 }
 

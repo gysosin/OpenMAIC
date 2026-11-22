@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { APICallError, UnsupportedFunctionalityError } from 'ai';
-import { buildCliArgs, buildCliEnv, clampEffort } from './args';
+import { assertModelId, buildCliArgs, buildCliEnv, clampEffort } from './args';
 import { runClaude, setClaudeCliConcurrency } from './process';
 import { buildPromptPayload } from './prompt';
 import { createClaudeStreamParser } from './stream';
@@ -103,6 +103,7 @@ async function* run(
 
 export function createClaudeCliModel(options: ClaudeCliModelOptions): LanguageModelV3 {
   const { modelId } = options;
+  assertModelId(modelId);
   const executablePath = options.executablePath ?? process.env.CLAUDE_CLI_PATH ?? 'claude';
   if (options.maxConcurrent) setClaudeCliConcurrency(options.maxConcurrent);
 

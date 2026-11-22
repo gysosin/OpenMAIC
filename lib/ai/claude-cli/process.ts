@@ -1,5 +1,8 @@
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('ClaudeCLI');
 
 /**
  * Process-wide cap on running CLI children, so outline, agent and scene calls
@@ -86,13 +89,15 @@ export async function* runClaude(opts: RunOptions): AsyncGenerator<string> {
     for await (const line of createInterface({ input: child.stdout })) yield line;
     const code = await exited;
     if (opts.signal?.aborted) throw opts.signal.reason;
+    // Paths and stderr stay in the server log; callers (and so clients) get a generic message.
     if (spawnError) {
-      throw new Error(
-        `Could not start Claude CLI at ${opts.executablePath}: ${spawnError.message}`,
-      );
+      log.error('Could not start Claude CLI', { executablePath: opts.executablePath, spawnError });
+      throw new Error('Could not start Claude CLI', { cause: spawnError });
     }
     if (code !== 0) {
-      throw new Error(`Claude CLI exited with code ${code}: ${stderr.trim() || 'no stderr'}`);
+      const detail = stderr.trim();
+      log.error(`Claude CLI exited with code ${code}`, { stderr: detail });
+      throw new Error(`Claude CLI failed (exit ${code})`, { cause: detail });
     }
   } finally {
     opts.signal?.removeEventListener('abort', kill);

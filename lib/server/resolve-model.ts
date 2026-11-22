@@ -16,7 +16,13 @@ import {
   PiGeminiNativeRequiredError,
 } from '@/lib/server/model-config/pi-gemini-route';
 import { presetIdFor } from '@/lib/config/preset-ids';
-import { getModel, getProvider, parseModelString, type ModelWithInfo } from '@/lib/ai/providers';
+import {
+  getModel,
+  getProvider,
+  isDeploymentOnlyProviderType,
+  parseModelString,
+  type ModelWithInfo,
+} from '@/lib/ai/providers';
 import type { ProviderType, ThinkingConfig } from '@/lib/types/provider';
 import {
   isServerConfiguredProvider,
@@ -193,6 +199,9 @@ export async function resolveRequestedModel(
     | undefined;
   if (effectiveProviderType === 'bedrock' && (providerId !== 'bedrock' || !managed)) {
     throw new Error('Amazon Bedrock must be enabled by the server operator before it can be used.');
+  }
+  if (isDeploymentOnlyProviderType(effectiveProviderType) && !managed) {
+    throw new Error('This provider can only be enabled by the server operator (openmaic.yml).');
   }
   const clientBaseUrl = managed ? undefined : clientBaseUrlParam || undefined;
   // The caller picked this model, so an unmanaged provider's endpoint is the

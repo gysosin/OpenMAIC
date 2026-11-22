@@ -24,12 +24,18 @@ describe('claude-cli args', () => {
       '',
     ]);
     expect(args).toContain('--include-partial-messages');
-    expect(args.slice(args.indexOf('--model'))).toEqual([
-      '--model',
-      'sonnet',
-      '--effort',
-      'medium',
-    ]);
+    expect(args.slice(-2)).toEqual(['--model=sonnet', '--effort=medium']);
+  });
+
+  it('refuses a model id that could be read as a flag or a path', () => {
+    for (const modelId of ['--dangerously-skip-permissions', '-x', 'a b', 'Opus', 'a/b', '']) {
+      expect(() => buildCliArgs({ modelId, systemPromptFile: '/tmp/s.txt' }), modelId).toThrow(
+        /Invalid Claude CLI model id/,
+      );
+    }
+    expect(() =>
+      buildCliArgs({ modelId: 'claude-opus-5-5', systemPromptFile: '/tmp/s.txt' }),
+    ).not.toThrow();
   });
 
   it('clamps effort to high and drops none', () => {

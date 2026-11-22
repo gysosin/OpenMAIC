@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { APICallError, UnsupportedFunctionalityError, generateText, streamText } from 'ai';
@@ -59,8 +59,8 @@ describe('claude-cli model against the fake CLI', () => {
     const rec = recorded();
     expect(rec.stdin).toBe('say hi');
     expect(rec.systemPrompt).toBe('Be brief.');
-    expect(rec.argv).toEqual(expect.arrayContaining(['--safe-mode', '--model', 'opus']));
-    expect(rec.argv.slice(rec.argv.indexOf('--effort'))).toEqual(['--effort', 'high']);
+    expect(rec.argv).toEqual(expect.arrayContaining(['--safe-mode', '--model=opus']));
+    expect(rec.argv.at(-1)).toBe('--effort=high');
     expect(rec.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe('64000');
     expect(rec.cwd).not.toBe(process.cwd());
   });
@@ -105,18 +105,30 @@ describe('claude-cli model against the fake CLI', () => {
     ).rejects.toThrow(UnsupportedFunctionalityError);
   });
 
-  it('turns a crashing child into an error carrying its stderr', async () => {
+  it('turns a crashing child into a generic error; stderr stays out of the message', async () => {
     process.env.FAKE_CLAUDE_MODE = 'crash';
-    await expect(generateText({ model: model(), prompt: 'x', maxRetries: 0 })).rejects.toThrow(
-      /code 3.*boom/,
+    const error = await generateText({ model: model(), prompt: 'x', maxRetries: 0 }).catch(
+      (e) => e,
     );
+    expect(error.message).toBe('Claude CLI failed (exit 3)');
+    expect(JSON.stringify(error.message)).not.toContain('boom');
+    expect(String(error.cause?.cause)).toContain('boom');
   });
 
-  it('reports a missing binary clearly', async () => {
+  it('reports a missing binary without naming its path', async () => {
     const missing = createClaudeCliModel({ modelId: 'haiku', executablePath: join(tmp, 'nope') });
-    await expect(generateText({ model: missing, prompt: 'x', maxRetries: 0 })).rejects.toThrow(
-      /Could not start Claude CLI/,
+    const error = await generateText({ model: missing, prompt: 'x', maxRetries: 0 }).catch(
+      (e) => e,
     );
+    expect(error.message).toBe('Could not start Claude CLI');
+    expect(error.message).not.toContain(tmp);
+  });
+
+  it('throws before spawning for a model id that looks like a flag', async () => {
+    expect(() =>
+      createClaudeCliModel({ modelId: '--dangerously-skip-permissions', executablePath: FAKE }),
+    ).toThrow(/Invalid Claude CLI model id/);
+    expect(existsSync(record)).toBe(false);
   });
 
   for (const mode of ['hang', 'stubborn']) {

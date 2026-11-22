@@ -2847,6 +2847,14 @@ export function getAllModels(): {
 /**
  * Get provider by ID
  */
+/**
+ * Provider types that run something on the server host. Only the operator may
+ * enable them (openmaic.yml), never a request, a workspace or a custom provider.
+ */
+export function isDeploymentOnlyProviderType(type: string | undefined): boolean {
+  return type === 'claude-cli';
+}
+
 export function getProvider(providerId: ProviderId): ProviderConfig | undefined {
   return PROVIDERS[providerId];
 }
