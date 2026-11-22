@@ -24,7 +24,7 @@ export interface RenderedScenePrompt {
 
 // Canvas dimensions (matching viewportSize and viewportRatio).
 const SLIDE_CANVAS_WIDTH = 1000;
-const SLIDE_CANVAS_HEIGHT = 562.5;
+export const SLIDE_CANVAS_HEIGHT = 562.5;
 
 /**
  * Build the slide content prompt. Internal: `generateSlideContent` and

@@ -43,7 +43,7 @@ import {
 } from './prompt-formatters.js';
 import type { PromptId } from './prompts/types.js';
 import { buildPrompt, PROMPT_IDS } from './prompts/index.js';
-import { buildSlideContentPrompt } from './scene-prompts.js';
+import { buildSlideContentPrompt, SLIDE_CANVAS_HEIGHT } from './scene-prompts.js';
 import { applyLayoutGuard } from './layout-guard.js';
 import {
   formatAdditionalWidgetRequirements,
@@ -889,7 +889,7 @@ async function generateSlideContent(
   }
 
   return {
-    elements: applyLayoutGuard(processedElements, 562.5),
+    elements: applyLayoutGuard(processedElements, SLIDE_CANVAS_HEIGHT),
     background,
     remark: generatedData.remark || outline.description,
   };
