@@ -200,7 +200,11 @@ export async function resolveRequestedModel(
   if (effectiveProviderType === 'bedrock' && (providerId !== 'bedrock' || !managed)) {
     throw new Error('Amazon Bedrock must be enabled by the server operator before it can be used.');
   }
-  if (isDeploymentOnlyProviderType(effectiveProviderType) && !managed) {
+  // A deployment-only type must come from the server's own registry, never from the client.
+  if (
+    isDeploymentOnlyProviderType(effectiveProviderType) &&
+    (!managed || registeredProviderType !== effectiveProviderType)
+  ) {
     throw new Error('This provider can only be enabled by the server operator (openmaic.yml).');
   }
   const clientBaseUrl = managed ? undefined : clientBaseUrlParam || undefined;

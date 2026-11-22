@@ -244,6 +244,17 @@ describe('resolveModel', () => {
       expect(mocks.getModelCalls).toHaveLength(0);
     });
 
+    it('rejects a client-claimed claude-cli type even on a server-managed provider', async () => {
+      // The operator declared some provider; the client must not be able to turn it into
+      // a local CLI spawn by sending providerType. Only the server's registry may say so.
+      mocks.serverManaged = true;
+      const { resolveModel } = await import('@/lib/server/resolve-model');
+      await expect(
+        resolveModel({ modelString: 'custom-x:sonnet', providerType: 'claude-cli' }),
+      ).rejects.toThrow();
+      expect(mocks.getModelCalls).toHaveLength(0);
+    });
+
     it('allows Bedrock after the server operator explicitly enables it', async () => {
       mocks.serverManaged = true;
       mocks.deployment.layer = {
