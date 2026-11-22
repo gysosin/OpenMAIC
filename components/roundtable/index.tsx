@@ -230,6 +230,7 @@ export function Roundtable({
   // layer as full-screen, anchored to the stage instead of the window.
   const overStage = !isPresenting && dock.collapsed && !courseEndOpen;
   const setDockCollapsed = useSettingsStore((state) => state.setDockCollapsed);
+  const captionMode = useSettingsStore((s) => s.captionMode);
   const ttsMuted = useSettingsStore((s) => s.ttsMuted);
   const setTTSMuted = useSettingsStore((s) => s.setTTSMuted);
   // The workspace's tts and asr slots decide whether narration and speech
@@ -532,6 +533,7 @@ export function Roundtable({
 
         case 't':
         case 'T':
+          if (e.shiftKey) break; // Shift+T cycles the caption mode
           e.preventDefault();
           handleToggleInput();
           break;
@@ -845,6 +847,9 @@ export function Roundtable({
         data-testid="roundtable-speech-layer"
         className={cn(
           'h-0 w-full relative overflow-visible',
+          // The caption band hangs below this zero-height layer in margin the stage gives up.
+          // Full-screen also keeps a 5rem row clear for the fixed transport bar and dock.
+          captionMode === 'band' && (isPresenting ? 'mb-32' : 'mb-12'),
           // Sized against the stage, which may be a pane: `cqw` in the widths below.
           overStage ? 'z-20 @container' : 'z-10',
         )}
@@ -855,7 +860,7 @@ export function Roundtable({
           participants={initialParticipants}
           speakingAgentId={speakingAgentId ?? null}
           isTopicPending={!!isTopicPending}
-          side="left"
+          userAvatar={userAvatar}
           onBubbleClick={handlePresentationBubbleClick}
           audioIndicatorState={audioIndicatorState ?? 'idle'}
           buttonState={enrichedPlaybackView?.buttonState}
@@ -888,7 +893,7 @@ export function Roundtable({
             )}
             style={{ right: chatCollapsed === false ? (chatAreaWidth ?? 320) : 0 }}
           >
-            <div className="mb-3 px-2 py-1 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
+            <div data-testid="presentation-toolbar" className="mb-3 px-2 py-1 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
               {toolbar}
             </div>
           </div>
@@ -1092,6 +1097,7 @@ export function Roundtable({
 
         {/* ── Right-side stack: bubble + dock — flex column, no hardcoded px ── */}
         <div
+          data-testid="presentation-right-stack"
           className={cn(
             'z-[48] flex flex-col items-end gap-3 pointer-events-none transition-[right] duration-300',
             overStage ? 'absolute bottom-3 right-4' : 'fixed bottom-5',
@@ -1100,20 +1106,6 @@ export function Roundtable({
             overStage ? undefined : { right: chatCollapsed ? 20 : 20 + (chatAreaWidth ?? 320) }
           }
         >
-          {/* Right-side speech bubble (flows above dock via flex) */}
-          <PresentationSpeechOverlay
-            playbackView={enrichedPlaybackView}
-            participants={initialParticipants}
-            speakingAgentId={speakingAgentId ?? null}
-            isTopicPending={!!isTopicPending}
-            userAvatar={userAvatar}
-            side="right"
-            onBubbleClick={handlePresentationBubbleClick}
-            audioIndicatorState={audioIndicatorState ?? 'idle'}
-            buttonState={enrichedPlaybackView?.buttonState}
-            isPaused={isDiscussionPaused || engineMode === 'paused'}
-          />
-
           {/* Suggested replies — draft user bubble above the dock */}
           <AnimatePresence>
             {showSuggestedReplies && (

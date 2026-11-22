@@ -839,6 +839,14 @@
   "roundtable": {
     "teacher": "PROFESSOR",
     "you": "VOCÊ",
+    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
+    "captionMove": "Move caption",
+    "captionMode": {
+      "band": "band",
+      "float": "floating",
+      "pill": "chip",
+      "off": "off"
+    },
     "inputPlaceholder": "Digite sua mensagem...",
     "listening": "Ouvindo...",
     "processing": "Processando...",

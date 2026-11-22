@@ -839,6 +839,14 @@
   "roundtable": {
     "teacher": "المعلم",
     "you": "أنت",
+    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
+    "captionMove": "Move caption",
+    "captionMode": {
+      "band": "band",
+      "float": "floating",
+      "pill": "chip",
+      "off": "off"
+    },
     "inputPlaceholder": "اكتب رسالتك...",
     "listening": "جارٍ الاستماع...",
     "processing": "جارٍ المعالجة...",

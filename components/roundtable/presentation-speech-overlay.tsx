@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Play, Pause, Repeat, Loader2, Volume2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
@@ -9,9 +9,12 @@ import type { AudioIndicatorState } from '@/components/roundtable/audio-indicato
 import type { PlaybackView } from '@/lib/playback';
 import type { Participant } from '@/lib/types/roundtable';
 import { cn } from '@/lib/utils';
+import { useSettingsStore } from '@/lib/store/settings';
+import { isTypingTarget, nextCaptionMode, normalizeCaptionMode } from '@/lib/caption-mode';
+import { CaptionBand, FloatingCaption } from '@/components/roundtable/caption-band';
 import { DEFAULT_TEACHER_AVATAR, DEFAULT_STUDENT_AVATAR } from '@/components/roundtable/constants';
 
-const PRESENTATION_BUBBLE_WIDTH = 'w-[min(420px,calc(100cqw-3rem))]';
+const PRESENTATION_BUBBLE_WIDTH = 'w-[min(420px,100cqw)]';
 
 interface PresentationSpeechOverlayProps {
   readonly playbackView: PlaybackView;
@@ -19,8 +22,6 @@ interface PresentationSpeechOverlayProps {
   readonly speakingAgentId: string | null;
   readonly isTopicPending: boolean;
   readonly userAvatar?: string;
-  /** Which side this overlay instance renders — 'left' or 'right' */
-  readonly side?: 'left' | 'right';
   readonly onBubbleClick?: () => void;
   readonly audioIndicatorState?: AudioIndicatorState;
   readonly buttonState?: 'play' | 'bars' | 'restart' | 'none';
@@ -391,13 +392,16 @@ export function PresentationSpeechOverlay({
   speakingAgentId,
   isTopicPending,
   userAvatar,
-  side = 'left',
   onBubbleClick,
   audioIndicatorState,
   buttonState,
   isPaused,
 }: PresentationSpeechOverlayProps) {
   const { t } = useI18n();
+  const mode = normalizeCaptionMode(useSettingsStore((s) => s.captionMode));
+  const floatPos = useSettingsStore((s) => s.captionFloatPos);
+  const setMode = useSettingsStore((s) => s.setCaptionMode);
+  const setFloatPos = useSettingsStore((s) => s.setCaptionFloatPos);
 
   const bubble = buildPresentationBubbleModel({
     playbackView,
@@ -410,16 +414,36 @@ export function PresentationSpeechOverlay({
     userAvatar,
   });
 
-  // Persistent collapse: once collapsed, stay collapsed until user explicitly expands.
-  // Left/right sides are separate component instances so they track independently.
-  // Right-side agents share a single instance, so all agents share the same collapse state.
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Shift+T steps through the modes (plain T already opens the text input).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'T' || !e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (isTypingTarget(e.target)) return;
+      e.preventDefault();
+      setMode(nextCaptionMode(mode));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mode, setMode]);
 
-  const matchesSide = !!(bubble && bubble.side === side);
+  // The float bubble and the pill live inside the stage box, which the dock does not own.
+  // A ref callback (new each render) rather than an effect: it re-reads on every commit.
+  const [stage, setStage] = useState<HTMLElement | null>(null);
+  const findStage = (marker: HTMLSpanElement | null) => {
+    if (!marker) return;
+    setStage(
+      marker
+        .closest('[data-playback-stage]')
+        ?.querySelector<HTMLElement>('[data-testid="stage-box"]') ?? null,
+    );
+  };
+
+  const cycle = () => setMode(nextCaptionMode(mode));
+  const isPill = mode === 'pill';
 
   const renderContent = (b: PresentationBubbleModel) => (
     <AnimatePresence mode="wait" initial={false}>
-      {isCollapsed ? (
+      {isPill ? (
         <motion.div
           key="collapsed"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -429,7 +453,7 @@ export function PresentationSpeechOverlay({
         >
           <CollapsedBubblePill
             bubble={b}
-            onExpand={() => setIsCollapsed(false)}
+            onExpand={() => setMode('float')}
             onPlayPause={onBubbleClick}
             isPaused={isPaused}
           />
@@ -446,7 +470,7 @@ export function PresentationSpeechOverlay({
           <PresentationBubbleCard
             bubble={b}
             onClick={onBubbleClick}
-            onCollapse={() => setIsCollapsed(true)}
+            onCollapse={() => setMode('pill')}
             audioIndicatorState={audioIndicatorState}
             buttonState={buttonState}
             isPaused={isPaused}
@@ -456,44 +480,21 @@ export function PresentationSpeechOverlay({
     </AnimatePresence>
   );
 
-  /* ── Left-side overlay: absolute covers stage, renders left bubble + cue ── */
-  if (side === 'left') {
-    return (
-      <div className="absolute inset-0 pointer-events-none">
-        <AnimatePresence mode="wait">
-          {matchesSide && bubble && (
-            <motion.div
-              key={bubble.key}
-              initial={{ opacity: 0, x: -20, y: 12 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.22, ease: [0.21, 1, 0.36, 1] }}
-              // On a stage too narrow for it beside the right-hand stack, it sits above that.
-              className="absolute bottom-6 left-6 z-30 pointer-events-auto @max-[36rem]:bottom-[4.75rem] @max-[36rem]:left-3"
-            >
-              {renderContent(bubble)}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  /* ── Right-side: inline flow, rendered inside the dock's flex column ── */
   return (
-    <AnimatePresence mode="wait">
-      {matchesSide && bubble && (
-        <motion.div
-          key={bubble.key}
-          initial={{ opacity: 0, x: 20, y: 12 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          transition={{ duration: 0.22, ease: [0.21, 1, 0.36, 1] }}
-          className="pointer-events-auto"
+    <>
+      <span ref={findStage} hidden />
+      {mode === 'band' && <CaptionBand bubble={bubble} onCycle={cycle} />}
+      {(mode === 'float' || isPill) && stage && bubble && (
+        <FloatingCaption
+          mode={mode as 'float' | 'pill'}
+          stage={stage}
+          pos={floatPos}
+          onMove={setFloatPos}
+          onCycle={cycle}
         >
           {renderContent(bubble)}
-        </motion.div>
+        </FloatingCaption>
       )}
-    </AnimatePresence>
+    </>
   );
 }
