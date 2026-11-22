@@ -41,3 +41,22 @@ slots:
 ```
 
 Set `PARALLEL_SCENE_CONCURRENCY=2` in `.env.local`.
+
+## Measured end-to-end run (story 1.8, 2026-11-23)
+
+Lesson "bits and bytes", 3 scenes (1 slide, 2 interactive), run `run-FTE3senRbnAU49g-`, local laptop, `PARALLEL_SCENE_CONCURRENCY=2`.
+
+| Step | Model | Time |
+|---|---|---|
+| Outline | claude-cli:opus | 17 s |
+| Agent profiles (4) | claude-cli:haiku | 10 s |
+| Slide content | claude-cli:sonnet | 26 s |
+| Slide actions (20) | claude-cli:sonnet | 9 s |
+| Interactive content, scene 2 | claude-cli:opus | 3 min 39 s |
+| Interactive content, scene 3 | claude-cli:opus | timed out at 300 s, retry took 4 min 44 s |
+| Actions per interactive scene | claude-cli:sonnet | 7-9 s |
+
+- Run wall time: 11.5 min, about 5 of them lost to the timeout. `sceneContent` deadline raised to 600 s (`lib/server/generation/run/deadline.ts`).
+- Peak CLI children: 3 (the shared cap). None left after completion.
+- Narration: 22 clips on OpenRouter, 0 unvoiced.
+- Share of the weekly limit: not measured (no usage reading was available on this machine).

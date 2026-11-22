@@ -16,8 +16,12 @@ export const STEP_DEADLINES_MS = {
   /** The outline, its own stream retries included. */
   outline: 300_000,
   agentProfiles: 120_000,
-  /** Per attempt. */
-  sceneContent: 300_000,
+  /**
+   * Per attempt. Fork: 600 s, because interactive scenes written by Opus through the
+   * local Claude Code CLI took 3.5-5 min each with two scenes in parallel (measured
+   * 2026-11-23); 300 s timed one out and redid five minutes of work.
+   */
+  sceneContent: 600_000,
   /** Per attempt. */
   sceneActions: 60_000,
   /** Per clip attempt (POST /api/generate/tts). */
