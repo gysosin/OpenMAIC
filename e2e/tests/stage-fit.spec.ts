@@ -96,9 +96,11 @@ test.describe('Stage fit', () => {
       }) => {
         await page.setViewportSize(viewport);
         await openCourse(page);
-        if (panel === 'hidden') {
-          await page.getByRole('button', { name: 'Hide conversation panel' }).click();
-        }
+        // The fixture can start with the panel either way: drive it to the wanted state.
+        const toggle = page.getByRole('button', {
+          name: panel === 'open' ? 'Show conversation panel' : 'Hide conversation panel',
+        });
+        if (await toggle.isVisible()) await toggle.click();
         await expect
           .poll(async () => {
             const { stage } = await measure(page);
@@ -111,7 +113,9 @@ test.describe('Stage fit', () => {
         expect(stage.x).toBeGreaterThanOrEqual(0);
         expect(stage.x + stage.width).toBeLessThanOrEqual(viewport.width + 1);
         expect(stage.y + stage.height).toBeLessThanOrEqual(viewport.height + 1);
-        expect(Math.abs(marker.width - stage.width)).toBeLessThanOrEqual(2);
+        // The marker is a 1000-wide text box with 10 canvas-px padding per side, so its
+        // text spans 98% of a full-bleed slide (a 90% letterbox would give ~88%).
+        expect(Math.abs(marker.width - stage.width * 0.98)).toBeLessThanOrEqual(2);
       });
     }
   }
