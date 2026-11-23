@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { listenToHost, postToHost } from './bridge';
 import { Chrome, STYLES } from './controls';
 import { buildTimeline, setAnims, stepAt, type BuiltTimeline } from './motion';
+import { expandPreset } from '../presets';
 import { bodyColor, buildPrimitive, disposePrimitive, gatePorts, syncPrimitive, type Built } from './primitives';
 import { Stage, type Pose } from './stage';
 import { cssVariables, initialTheme, THEMES, type Theme, type ThemeName } from './theme';
@@ -26,7 +27,8 @@ function readSpec(): DemoSpec | null {
   const node = document.getElementById('demo-spec');
   if (!node?.textContent) return null;
   try {
-    const spec = JSON.parse(node.textContent) as DemoSpec;
+    let spec = JSON.parse(node.textContent) as DemoSpec | null;
+    if (spec?.version === 1 && spec.kind === 'preset') spec = expandPreset(spec);
     if (!spec || spec.version !== 1) return null;
     // The server validates with zod; this keeps a hand-edited spec from crashing the stage.
     const seen = new Set<string>();
