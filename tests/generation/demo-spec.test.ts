@@ -134,3 +134,74 @@ describe('validateDemoSpec', () => {
     expect(p).toContain('steps.0.set.c.color');
   });
 });
+
+describe('validateDemoSpec, kind "flow"', () => {
+  const flow = () => ({
+    version: 1,
+    kind: 'flow',
+    title: 'Pipeline',
+    direction: 'right',
+    objects: [
+      { id: 'a', type: 'node', label: 'A', icon: 'server', shape: 'box' },
+      { id: 'b', type: 'node', label: 'B', shape: 'pill' },
+      { id: 'ab', type: 'edge', from: 'a', to: 'b', label: 'go' },
+      { id: 't', type: 'token', from: 'a', label: 'req' },
+    ],
+    steps: [
+      { id: 's1', highlight: ['a'] },
+      { id: 's2', travel: { t: 'ab' }, set: { 't.label': 'resp', 'b.value': 42 } },
+      { id: 's3', travel: { t: 'a' } },
+    ],
+  });
+
+  test('accepts nodes, edges, tokens, travel and direction', () => {
+    const r = validateDemoSpec(flow());
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.spec.steps[1].travel).toEqual({ t: 'ab' });
+  });
+
+  test('flow and scene3d types do not mix', () => {
+    const raw = flow() as any;
+    raw.objects.push({ id: 'cube', type: 'box' });
+    expect(errPaths(raw)).toContain('objects.4.type');
+    const scene = halfAdder() as any;
+    scene.objects.push({ id: 'n', type: 'node' });
+    expect(errPaths(scene)).toContain('objects.4.type');
+  });
+
+  test('edges join existing nodes; tokens start on a node', () => {
+    const raw = flow() as any;
+    raw.objects[2].to = 't';
+    delete raw.objects[2].from;
+    raw.objects[3].from = 'ab';
+    const p = errPaths(raw);
+    expect(p).toContain('objects.2.from');
+    expect(p).toContain('objects.2.to');
+    expect(p).toContain('objects.3.from');
+  });
+
+  test('travel moves tokens onto edges or nodes only', () => {
+    const raw = flow() as any;
+    raw.steps[1].travel = { a: 'ab', t: 't', ghost: 'ab' };
+    const p = errPaths(raw);
+    expect(p).toContain('steps.1.travel.a');
+    expect(p).toContain('steps.1.travel.t');
+    expect(p).toContain('steps.1.travel.ghost');
+    const scene = halfAdder() as any;
+    scene.steps[0].travel = { a: 'w1' };
+    expect(errPaths(scene)).toContain('steps.0.travel.a');
+  });
+
+  test('rejects unknown icons, shapes and directions, an empty flow and an oversized one', () => {
+    const raw = flow() as any;
+    raw.objects[0].icon = 'skull';
+    raw.objects[1].shape = 'hexagon';
+    raw.direction = 'sideways';
+    expect(errPaths(raw)).toEqual(expect.arrayContaining(['objects.0.icon', 'objects.1.shape', 'direction']));
+    const empty = { ...flow(), objects: [{ id: 't', type: 'token' }] };
+    expect(errPaths(empty)).toContain('objects');
+    const big = flow() as any;
+    for (let i = 0; i < 60; i++) big.objects.push({ id: `x${i}`, type: 'node' });
+    expect(errPaths(big)).toContain('objects');
+  });
+});

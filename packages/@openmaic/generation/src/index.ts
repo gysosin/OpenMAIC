@@ -131,7 +131,7 @@ export {
   interactiveLibraryPrompt,
   interactiveLibraryUrl,
 } from './interactive-libraries.js';
-export { GATES, validateDemoSpec } from './demo-spec.js';
+export { FLOW_ICONS, FLOW_TYPES, GATES, MAX_FLOW_NODES, validateDemoSpec } from './demo-spec.js';
 export type {
   CameraTarget,
   Checkpoint,
@@ -141,6 +141,8 @@ export type {
   DemoSpec,
   DemoSpecResult,
   DemoStep,
+  FlowIcon,
+  FlowType,
   GateKind,
   PrimitiveType,
   Scalar,

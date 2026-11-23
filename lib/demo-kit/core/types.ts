@@ -14,6 +14,8 @@ export type {
   DemoControl,
   DemoObject,
   DemoStep,
+  FlowIcon,
+  FlowType,
   GateKind,
   PrimitiveType,
   Scalar,

@@ -48,13 +48,35 @@ export const PRIMITIVES = [
   'wire',
   'arrow',
 ] as const;
+/** kind "flow": a layered 2.5D diagram of nodes, directed edges and tokens that travel the edges. */
+export const FLOW_TYPES = ['node', 'edge', 'token'] as const;
+/** Monochrome node icons the kit draws (flow nodes only). */
+export const FLOW_ICONS = [
+  'browser',
+  'globe',
+  'network',
+  'server',
+  'database',
+  'lock',
+  'cpu',
+  'memory',
+  'user',
+  'cloud',
+  'file',
+  'gear',
+  'clock',
+  'check',
+  'alert',
+] as const;
+/** Readability cap for flow diagrams; bigger graphs belong in several demos. */
+export const MAX_FLOW_NODES = 60;
 export const GATES = ['and', 'or', 'xor', 'not', 'nand', 'nor', 'xnor', 'buf'] as const;
 /** Props a step `set` key or a control `bind` may target: `<objectId>.<prop>`. */
 export const SET_PROPS = ['value', 'label', 'color', 'visible', 'x', 'y', 'z', 'scale'] as const;
 
 const objectSchema = z.object({
   id,
-  type: z.enum(PRIMITIVES),
+  type: z.enum([...PRIMITIVES, ...FLOW_TYPES]),
   at: vec3.optional(),
   /** Euler angles in degrees. */
   rotation: vec3.optional(),
@@ -72,6 +94,9 @@ const objectSchema = z.object({
   to: z.union([id, vec3]).optional(),
   /** surface: row-major heights, rows along z, columns along x. */
   heights: z.array(z.array(z.number().finite()).max(128)).max(128).optional(),
+  /** flow node: icon glyph and outline (box: a component, pill: a state). */
+  icon: z.enum(FLOW_ICONS).optional(),
+  shape: z.enum(['box', 'pill']).optional(),
 });
 
 const stepSchema = z.object({
@@ -83,6 +108,8 @@ const stepSchema = z.object({
   move: z.record(id, vec3).optional(),
   pulse: z.array(id).optional(),
   highlight: z.array(id).optional(),
+  /** flow: token id -> the edge it travels this step (ending on the edge's target) or a node it jumps to. */
+  travel: z.record(id, id).optional(),
   /** Object id to frame, "overview", or an explicit pose. */
   camera: z.union([id, z.object({ position: vec3, target: vec3 })]).optional(),
   checkpoint: z
@@ -111,6 +138,8 @@ const specSchema = z
     preset: id.optional(),
     params: z.record(z.string(), z.unknown()).optional(),
     title: text,
+    /** flow: layout direction, left to right (default) or top to bottom. */
+    direction: z.enum(['right', 'down']).optional(),
     objects: z.array(objectSchema).max(500).default([]),
     steps: z.array(stepSchema).max(100).default([]),
     controls: z.array(controlSchema).max(20).default([]),
@@ -176,11 +205,46 @@ const specSchema = z
         bad(['steps', i, 'checkpoint', 'answer'], 'answer must be an index into options');
     });
     s.controls.forEach((c, i) => target(['controls', i, 'bind'], c.bind));
+
+    // Flow graphs: only flow types, edges join nodes, tokens start on a node and travel edges or nodes.
+    const flow = s.kind === 'flow';
+    const typeOf = new Map(s.objects.map((o) => [o.id, o.type]));
+    const isFlowType = (t: string) => (FLOW_TYPES as readonly string[]).includes(t);
+    s.objects.forEach((o, i) => {
+      if (s.kind !== 'preset' && flow !== isFlowType(o.type))
+        bad(['objects', i, 'type'], flow ? `flow objects are ${FLOW_TYPES.join(', ')}` : `"${o.type}" is only for kind "flow"`);
+      if (!flow) return;
+      const node = (end: 'from' | 'to', required: boolean) => {
+        const ref = o[end];
+        if (ref === undefined) {
+          if (required) bad(['objects', i, end], `${o.type} needs ${end}`);
+        } else if (typeof ref !== 'string' || typeOf.get(ref) !== 'node') bad(['objects', i, end], 'must be a node id');
+      };
+      if (o.type === 'edge') {
+        node('from', true);
+        node('to', true);
+      } else if (o.type === 'token') node('from', false);
+    });
+    if (flow) {
+      const nodes = s.objects.filter((o) => o.type === 'node').length;
+      if (!nodes) bad(['objects'], 'a flow needs at least one node');
+      if (nodes > MAX_FLOW_NODES) bad(['objects'], `a flow has at most ${MAX_FLOW_NODES} nodes`);
+    }
+    s.steps.forEach((st, i) => {
+      for (const [tok, to] of Object.entries(st.travel ?? {})) {
+        const path = ['steps', i, 'travel', tok];
+        if (!flow) bad(path, 'travel is only for kind "flow"');
+        else if (typeOf.get(tok) !== 'token') bad(path, `"${tok}" is not a token`);
+        else if (typeOf.get(to) !== 'edge' && typeOf.get(to) !== 'node') bad(path, `"${to}" is not an edge or node`);
+      }
+    });
   });
 
 export type Vec3 = [number, number, number];
 export type Scalar = number | string | boolean;
 export type PrimitiveType = (typeof PRIMITIVES)[number];
+export type FlowType = (typeof FLOW_TYPES)[number];
+export type FlowIcon = (typeof FLOW_ICONS)[number];
 export type GateKind = (typeof GATES)[number];
 export type ColorName = (typeof COLOR_NAMES)[number];
 export type DemoObject = z.infer<typeof objectSchema>;
