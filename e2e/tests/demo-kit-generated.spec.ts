@@ -59,7 +59,7 @@ import { generateDemoContent } from '@openmaic/generation';
 const [id, widgetType, fixtures, ...replies] = process.argv.slice(1);
 const aiCall = async () => readFileSync(fixtures + '/' + replies.shift() + '.txt', 'utf8');
 const content = await generateDemoContent({
-  id, type: 'interactive', title: 'Generated demo',
+  id, type: 'interactive', title: 'How plants make sugar',
   description: 'How a leaf turns light into sugar.',
   keyPoints: ['Light is absorbed', 'Water is split', 'Sugar is built'],
   order: 1, widgetType, widgetOutline: {},
