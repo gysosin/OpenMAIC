@@ -1,0 +1,1 @@
+{"version":1,"kind":"preset","preset":"logic-circuit","params":{"circuit":"full-adder"},"title":"Full adder","objects":[],"steps":[],"controls":[]}

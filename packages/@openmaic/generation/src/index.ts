@@ -150,6 +150,16 @@ export type {
 } from './demo-spec.js';
 export { buildDemoShell } from './demo-shell.js';
 export {
+  DEMO_WIDGET_TYPES,
+  checkDemoSpec,
+  demoKitUrl,
+  ensureDemoOutline,
+  fallbackDemoSpec,
+  generateDemoContent,
+  isDemoKitEnabled,
+  pickFallbackPreset,
+} from './demo-generation.js';
+export {
   PRESET_NAMES,
   PRESET_PARAMS,
   LOGIC_CIRCUITS,
