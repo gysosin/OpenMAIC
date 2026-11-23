@@ -68,12 +68,7 @@ export function SceneSidebar({
   };
 
   return (
-    <PageRail
-      collapsed={collapsed}
-      onCollapseChange={onCollapseChange}
-      testId="scene-rail"
-      showCollapseButton={false}
-    >
+    <PageRail collapsed={collapsed} onCollapseChange={onCollapseChange}>
       {/* Scenes List */}
       <div
         data-testid="scene-list"
@@ -99,8 +94,10 @@ export function SceneSidebar({
                 }
               }}
               className={cn(
-                'group relative rounded-lg transition-colors duration-150 cursor-pointer flex flex-col gap-1 p-1.5',
-                isActive ? 'bg-accent' : 'hover:bg-muted',
+                'group relative rounded-lg transition-all duration-200 cursor-pointer flex flex-col gap-1 p-1.5',
+                isActive
+                  ? 'bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-200 dark:ring-purple-700'
+                  : 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50',
               )}
             >
               {/* Scene Header */}
@@ -108,8 +105,10 @@ export function SceneSidebar({
                 <div className="flex items-center gap-2 max-w-full">
                   <span
                     className={cn(
-                      'text-xs font-medium tabular-nums w-5 shrink-0',
-                      isActive ? 'text-primary-text' : 'text-muted-foreground',
+                      'text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0',
+                      isActive
+                        ? 'bg-purple-600 dark:bg-purple-500 text-white shadow-sm shadow-purple-500/30'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
                     )}
                   >
                     {index + 1}
@@ -117,10 +116,10 @@ export function SceneSidebar({
                   <span
                     data-testid="scene-title"
                     className={cn(
-                      'text-xs truncate transition-colors',
+                      'text-xs font-bold truncate transition-colors',
                       isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground group-hover:text-foreground',
+                        ? 'text-purple-700 dark:text-purple-300'
+                        : 'text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100',
                     )}
                   >
                     {scene.title}
@@ -129,7 +128,7 @@ export function SceneSidebar({
               </div>
 
               {/* Thumbnail */}
-              <div className="relative aspect-video w-full rounded overflow-hidden bg-muted ring-1 ring-border">
+              <div className="relative aspect-video w-full rounded overflow-hidden bg-gray-100 dark:bg-gray-800 ring-1 ring-black/5 dark:ring-white/5">
                 <div className="absolute inset-0 flex items-center justify-center">
                   {isSlide && slideContent ? (
                     <LazySlideThumbnail

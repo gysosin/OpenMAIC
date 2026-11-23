@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "教師",
     "you": "你",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "輸入你的訊息...",
     "listening": "錄音中...",
     "processing": "處理中...",
@@ -866,7 +858,6 @@
     "voiceInput": "語音輸入",
     "voiceInputDisabled": "語音輸入已停用",
     "textInput": "文字輸入",
-    "send": "傳送",
     "stopRecording": "停止錄音",
     "startRecording": "開始錄音"
   },

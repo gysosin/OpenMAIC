@@ -1,1 +1,0 @@
-I'd suggest a demo with two input switches feeding an XOR gate and an AND gate. As the learner flips each switch, the sum and carry outputs light up, and a question near the end asks what the carry bit is when both inputs are 1.

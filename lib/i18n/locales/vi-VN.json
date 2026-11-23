@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "GIẢNG VIÊN",
     "you": "BẠN",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "Nhập tin nhắn…",
     "listening": "Đang nghe…",
     "processing": "Đang xử lý…",
@@ -866,7 +858,6 @@
     "voiceInput": "Nhập bằng giọng nói",
     "voiceInputDisabled": "Đã tắt nhập bằng giọng nói",
     "textInput": "Nhập bằng chữ",
-    "send": "Gửi",
     "stopRecording": "Dừng ghi âm",
     "startRecording": "Bắt đầu ghi âm"
   },

@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "LEHRKRAFT",
     "you": "DU",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "Gib deine Nachricht ein...",
     "listening": "Hört zu...",
     "processing": "Wird verarbeitet...",
@@ -866,7 +858,6 @@
     "voiceInput": "Spracheingabe",
     "voiceInputDisabled": "Spracheingabe deaktiviert",
     "textInput": "Texteingabe",
-    "send": "Senden",
     "stopRecording": "Aufnahme beenden",
     "startRecording": "Aufnahme starten"
   },

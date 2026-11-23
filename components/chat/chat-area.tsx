@@ -16,9 +16,7 @@ import { cn } from '@/lib/utils';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { useStageStore } from '@/lib/store';
 import { buildLectureNotes } from '@/lib/chat/lecture-notes';
-import { clampRegionWidth } from '@/components/classroom/shell/clamp-region-width';
-import { SIDE_PANEL_WIDTH } from '@/components/classroom/shell/panel-size';
-import { BookOpen, MessageSquare } from 'lucide-react';
+import { PanelRightClose, BookOpen, MessageSquare } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   useChatSessions,
@@ -35,6 +33,7 @@ interface ChatAreaProps {
   width?: number;
   onWidthChange?: (width: number) => void;
   collapsed?: boolean;
+  onCollapseChange?: (collapsed: boolean) => void;
   activeBubbleId?: string | null;
   onActiveBubble?: (messageId: string | null) => void;
   onLiveSpeech?: (text: string | null, agentId?: string | null) => void;
@@ -57,8 +56,6 @@ interface ChatAreaProps {
   currentActionIndex?: number | null;
   canJumpToAction?: (sceneId: string, actionIndex: number) => boolean;
   onJumpToAction?: (sceneId: string, actionIndex: number) => void;
-  /** Receives the element at the foot of the Chat tab, where the agent dock renders. */
-  onDockHost?: (host: HTMLDivElement | null) => void;
 }
 
 export interface ChatAreaRef {
@@ -84,6 +81,8 @@ export interface ChatAreaRef {
 }
 
 const DEFAULT_WIDTH = 340;
+const MIN_WIDTH = 240;
+const MAX_WIDTH = 560;
 
 export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
   (
@@ -92,6 +91,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
       width = DEFAULT_WIDTH,
       onWidthChange,
       collapsed = false,
+      onCollapseChange,
       activeBubbleId,
       onActiveBubble,
       onLiveSpeech,
@@ -108,7 +108,6 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
       currentActionIndex,
       canJumpToAction,
       onJumpToAction,
-      onDockHost,
     },
     ref,
   ) => {
@@ -242,7 +241,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
 
         const handleMouseMove = (me: MouseEvent) => {
           const delta = startX - me.clientX;
-          const newWidth = clampRegionWidth('panel', startWidth + delta);
+          const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta));
           onWidthChange?.(newWidth);
         };
 
@@ -263,29 +262,26 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
       [width, onWidthChange],
     );
 
-    const displayWidth = collapsed ? 0 : Math.max(SIDE_PANEL_WIDTH.min, width);
+    const displayWidth = collapsed ? 0 : width;
 
     return (
       <div
-        data-testid="side-panel"
-        data-collapsed={collapsed}
         style={{
           width: displayWidth,
           transition: isDragging ? 'none' : 'width 0.3s ease',
         }}
         className={cn(
-          'bg-surface border-l border-border flex flex-col shrink-0 z-20 relative overflow-visible',
+          'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-l border-gray-100 dark:border-gray-800 shadow-[-2px_0_24px_rgba(0,0,0,0.02)] flex flex-col shrink-0 z-20 relative overflow-visible',
           className,
         )}
       >
         {/* Drag handle */}
         {!collapsed && (
           <div
-            data-testid="side-panel-resize"
             onMouseDown={handleDragStart}
-            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group hover:bg-primary-subtle active:bg-primary-subtle transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group hover:bg-purple-400/30 dark:hover:bg-purple-600/30 active:bg-purple-500/40 dark:active:bg-purple-500/40 transition-colors"
           >
-            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-border-strong group-hover:bg-primary transition-colors" />
+            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-purple-500 transition-colors" />
           </div>
         )}
 
@@ -314,6 +310,15 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                   )}
                 </TabsTrigger>
               </TabsList>
+
+              {onCollapseChange && (
+                <button
+                  onClick={() => onCollapseChange(true)}
+                  className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-gray-200/90 dark:hover:bg-gray-700/90 hover:text-gray-700 dark:hover:text-gray-200 active:scale-90 transition-all duration-200"
+                >
+                  <PanelRightClose className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {/* Notes Tab */}
@@ -357,7 +362,6 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                   </>
                 )}
               </div>
-              <div ref={onDockHost} data-testid="chat-dock-host" className="shrink-0" />
             </TabsContent>
           </Tabs>
         </div>

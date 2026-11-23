@@ -21,34 +21,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* House UI guide (docs/fork-plan/UI.md) roles. */
-  --color-surface: var(--surface);
-  --color-surface-raised: var(--surface-raised);
-  --color-border-strong: var(--border-strong);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-subtle: var(--primary-subtle);
-  --color-primary-text: var(--primary-text);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-success-surface: var(--success-surface);
-  --color-success-text: var(--success-text);
-  --color-success-border: var(--success-border);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-warning-surface: var(--warning-surface);
-  --color-warning-text: var(--warning-text);
-  --color-warning-border: var(--warning-border);
-  --color-danger-surface: var(--danger-surface);
-  --color-danger-text: var(--danger-text);
-  --color-danger-border: var(--danger-border);
-  --color-series-1: var(--series-1);
-  --color-series-2: var(--series-2);
-  --color-series-3: var(--series-3);
-  --color-series-4: var(--series-4);
-  --color-series-5: var(--series-5);
-  --color-series-6: var(--series-6);
-  --color-series-7: var(--series-7);
-  --color-series-8: var(--series-8);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -95,136 +67,72 @@
      a single latin-only file, which left Cyrillic and Vietnamese text to OS
      fallback fonts. */
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.205 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0 0);
+  --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0 0);
-  --primary: oklch(0.494 0.228 295.6);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #722ed1;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0 0);
+  --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.965 0 0);
-  --muted-foreground: oklch(0.48 0 0);
-  --accent: oklch(0.955 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.56 0.21 27);
+  --destructive: oklch(0.58 0.22 27);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.494 0.228 295.6);
-  --surface: oklch(1 0 0);
-  --surface-raised: oklch(1 0 0);
-  --border-strong: oklch(0.6 0 0);
-  --primary-hover: oklch(0.44 0.22 295.6);
-  --primary-subtle: oklch(0.95 0.03 296);
-  --primary-text: oklch(0.494 0.228 295.6);
-  --success: oklch(0.52 0.13 155);
-  --success-foreground: oklch(1 0 0);
-  --success-surface: oklch(0.96 0.03 155);
-  --success-text: oklch(0.42 0.1 155);
-  --success-border: oklch(0.86 0.06 155);
-  --warning: oklch(0.8 0.15 80);
-  --warning-foreground: oklch(0.205 0 0);
-  --warning-surface: oklch(0.97 0.035 90);
-  --warning-text: oklch(0.46 0.09 70);
-  --warning-border: oklch(0.88 0.08 85);
-  --danger-surface: oklch(0.97 0.012 20);
-  --danger-text: oklch(0.48 0.18 27);
-  --danger-border: oklch(0.89 0.05 22);
-  --series-1: oklch(0.532 0.131 244);
-  --series-2: oklch(0.568 0.127 66);
-  --series-3: oklch(0.514 0.106 166.8);
-  --series-4: oklch(0.572 0.118 98.7);
-  --series-5: oklch(0.545 0.158 44.4);
-  --series-6: oklch(0.562 0.13 340.6);
-  --series-7: oklch(0.579 0.093 217.5);
-  --series-8: oklch(0.464 0 0);
-  --chart-1: var(--series-1);
-  --chart-2: var(--series-2);
-  --chart-3: var(--series-3);
-  --chart-4: var(--series-4);
-  --chart-5: var(--series-5);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-  --sidebar: oklch(0.975 0 0);
-  --sidebar-foreground: oklch(0.205 0 0);
-  --sidebar-primary: oklch(0.494 0.228 295.6);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.955 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.494 0.228 295.6);
-
-  /* Motion (UI.md section 9). */
-  --duration-fast: 120ms;
-  --duration-base: 200ms;
-  --duration-enter: 280ms;
-  --ease-ui: cubic-bezier(0.2, 0, 0, 1);
-
-  /* Classroom layout regions (UI.md section 2). */
-  --rail-w: 56px;
-  --topbar-h: 40px;
-  --caption-h: 56px;
-  --transport-h: 44px;
-  --side-panel-min: 320px;
-  --side-panel-max: 560px;
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  color-scheme: dark;
-  --background: oklch(0.18 0 0);
-  --foreground: oklch(0.93 0 0);
-  --card: oklch(0.215 0 0);
-  --card-foreground: oklch(0.93 0 0);
-  --popover: oklch(0.265 0 0);
-  --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.569 0.231 297.6);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.265 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
-  --muted: oklch(0.265 0 0);
-  --muted-foreground: oklch(0.74 0 0);
-  --accent: oklch(0.3 0 0);
-  --accent-foreground: oklch(0.93 0 0);
-  --destructive: oklch(0.7 0.17 22);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.72 0.14 298);
-  --surface: oklch(0.215 0 0);
-  --surface-raised: oklch(0.265 0 0);
-  --border-strong: oklch(0.55 0 0);
-  --primary-hover: oklch(0.52 0.23 297.6);
-  --primary-subtle: oklch(0.28 0.07 296);
-  --primary-text: oklch(0.74 0.15 298);
-  --success: oklch(0.72 0.16 155);
-  --success-foreground: oklch(0.18 0 0);
-  --success-surface: oklch(0.27 0.05 155);
-  --success-text: oklch(0.8 0.14 155);
-  --success-border: oklch(0.38 0.08 155);
-  --warning: oklch(0.8 0.15 80);
-  --warning-foreground: oklch(0.18 0 0);
-  --warning-surface: oklch(0.28 0.05 85);
-  --warning-text: oklch(0.84 0.13 85);
-  --warning-border: oklch(0.4 0.08 80);
-  --danger-surface: oklch(0.27 0.05 22);
-  --danger-text: oklch(0.8 0.11 22);
-  --danger-border: oklch(0.4 0.09 22);
-  --series-1: oklch(0.681 0.113 248);
-  --series-2: oklch(0.775 0.144 68.7);
-  --series-3: oklch(0.746 0.138 166.9);
-  --series-4: oklch(0.902 0.172 105);
-  --series-5: oklch(0.727 0.139 40.4);
-  --series-6: oklch(0.773 0.089 341.2);
-  --series-7: oklch(0.796 0.096 220.9);
-  --series-8: oklch(0.789 0 0);
-  --sidebar: oklch(0.215 0 0);
-  --sidebar-foreground: oklch(0.93 0 0);
-  --sidebar-primary: oklch(0.569 0.231 297.6);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #8b47ea;
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.371 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.265 0 0);
-  --sidebar-accent-foreground: oklch(0.93 0 0);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.72 0.14 298);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -416,7 +324,18 @@ body[data-maic-editor='true'] .editable-element-text li,
 
 [data-pbl-workspace='true'] .pbl-v2-scrollbar::-webkit-scrollbar-thumb,
 [data-pbl-workspace='true'] .pbl-v2-scroll-fade::-webkit-scrollbar-thumb {
-  background-color: rgb(199 210 254 / 0.42);
+  background-color: rgb(224 231 255 / 0.38);
+  background: linear-gradient(
+      180deg,
+      rgb(224 231 255 / 0.08) 0,
+      rgb(224 231 255 / 0.26) 15%,
+      rgb(199 210 254 / 0.5) 34%,
+      rgb(165 243 252 / 0.42) 52%,
+      rgb(199 210 254 / 0.5) 70%,
+      rgb(224 231 255 / 0.26) 86%,
+      rgb(224 231 255 / 0.08) 100%
+    )
+    content-box;
   background-clip: content-box;
   border: 3px solid transparent;
   border-radius: 999px;
@@ -428,7 +347,17 @@ body[data-maic-editor='true'] .editable-element-text li,
 
 [data-pbl-workspace='true'] .pbl-v2-scrollbar::-webkit-scrollbar-thumb:hover,
 [data-pbl-workspace='true'] .pbl-v2-scroll-fade::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(199 210 254 / 0.62);
+  background: linear-gradient(
+      180deg,
+      rgb(224 231 255 / 0.12) 0,
+      rgb(224 231 255 / 0.34) 14%,
+      rgb(216 203 255 / 0.62) 32%,
+      rgb(165 243 252 / 0.5) 52%,
+      rgb(216 203 255 / 0.62) 70%,
+      rgb(224 231 255 / 0.34) 86%,
+      rgb(224 231 255 / 0.12) 100%
+    )
+    content-box;
 }
 
 [data-pbl-workspace='true'] .pbl-v2-light-card-markdown {
@@ -487,7 +416,10 @@ body[data-maic-editor='true'] .editable-element-text li,
   position: relative;
   overflow: hidden;
   border: 1px solid rgb(147 197 253 / 0.2);
-  background: rgb(20 33 58 / 0.78);
+  background:
+    radial-gradient(circle at 8% 0%, rgb(157 140 255 / 0.16), transparent 34%),
+    radial-gradient(circle at 96% 15%, rgb(34 211 238 / 0.1), transparent 30%),
+    linear-gradient(145deg, rgb(22 35 62 / 0.78), rgb(17 31 56 / 0.72) 58%, rgb(15 28 50 / 0.8));
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.1),
     inset 0 0 0 1px rgb(255 255 255 / 0.025),
@@ -501,7 +433,13 @@ body[data-maic-editor='true'] .editable-element-text li,
   position: absolute;
   inset: 0 0 auto;
   height: 1px;
-  background: rgb(165 180 252 / 0.3);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(165 180 252 / 0.55),
+    rgb(103 232 249 / 0.34),
+    transparent
+  );
 }
 
 [data-pbl-workspace='true'] .pbl-v2-instructor-bubble::after {
@@ -530,7 +468,15 @@ body[data-maic-editor='true'] .editable-element-text li,
   position: relative;
   overflow: hidden;
   border: 1px solid rgb(199 210 254 / 0.55);
-  background: rgb(245 243 255 / 0.62);
+  background:
+    radial-gradient(circle at 12% 0%, rgb(167 139 250 / 0.26), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgb(103 232 249 / 0.2), transparent 28%),
+    linear-gradient(
+      145deg,
+      rgb(245 243 255 / 0.7),
+      rgb(239 246 255 / 0.5) 54%,
+      rgb(236 254 255 / 0.56)
+    );
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.65),
     0 20px 54px rgb(3 10 26 / 0.3),
@@ -542,10 +488,12 @@ body[data-maic-editor='true'] .editable-element-text li,
 [data-pbl-workspace='true'] .pbl-v2-task-review-shell::before {
   content: '';
   position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
+  inset: 0;
   pointer-events: none;
-  background: rgb(167 139 250 / 0.5);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.5), transparent 34%),
+    linear-gradient(90deg, rgb(167 139 250 / 0.72), rgb(103 232 249 / 0.42), transparent) top / 100%
+      1px no-repeat;
 }
 
 [data-pbl-workspace='true'] .pbl-v2-task-review-shell > * {
@@ -555,7 +503,14 @@ body[data-maic-editor='true'] .editable-element-text li,
 
 [data-pbl-workspace='true'] .pbl-v2-task-review-card {
   border: 1px solid rgb(199 210 254 / 0.52);
-  background: rgb(255 255 255 / 0.4);
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 0.48),
+      rgb(238 242 255 / 0.34),
+      rgb(236 254 255 / 0.3)
+    ),
+    rgb(255 255 255 / 0.2);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.58),
     0 16px 38px rgb(4 20 28 / 0.14),
@@ -597,24 +552,38 @@ body[data-maic-editor='true'] .editable-element-text li,
   }
 }
 
-/* "Thinking…" indicator for the AI sidebar while the agent run streams and
-   nothing has arrived yet: muted text with a slow opacity pulse. */
+/* Cursor-style "Thinking…" indicator: a bright band sweeps left→right across
+   muted text (gradient clipped to glyphs). Used by the AI sidebar while the
+   agent run streams and nothing has arrived yet. */
 @keyframes ai-thinking-shimmer {
-  0%,
-  100% {
-    opacity: 1;
+  0% {
+    background-position: 150% 0;
   }
-  50% {
-    opacity: 0.45;
+  100% {
+    background-position: -50% 0;
   }
 }
 .ai-thinking-shimmer {
-  color: var(--muted-foreground);
-  animation: ai-thinking-shimmer 1.8s ease-in-out infinite;
+  background: linear-gradient(
+    100deg,
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 40%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 60%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: ai-thinking-shimmer 1.8s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .ai-thinking-shimmer {
     animation: none;
+    color: var(--muted-foreground);
+    -webkit-text-fill-color: var(--muted-foreground);
   }
 }
 

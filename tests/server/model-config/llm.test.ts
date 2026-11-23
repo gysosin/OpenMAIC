@@ -163,32 +163,6 @@ describe('resolveStageModel', () => {
     ).resolves.toMatchObject({ modelId: 'm' });
   });
 
-  it('refuses claude-cli from a workspace but serves it from the deployment', async () => {
-    state.lookup = lookupFromLayers('llm', {
-      deployment: null,
-      workspace: layer('workspace', {
-        providers: { p: { preset: 'claude-cli' } },
-        slots: { llm: 'p:sonnet' },
-      } as never),
-    });
-    await expect(
-      resolveStageModel({ stage: 'chat-adapter', workspaceId: 'u' }),
-    ).rejects.toMatchObject({
-      code: 'MODEL_CONFIG_INVALID',
-      message: expect.stringMatching(/only be configured by the deployment/),
-    });
-    state.lookup = lookupFromLayers('llm', {
-      deployment: layer('deployment', {
-        providers: { cli: { preset: 'claude-cli', models: ['sonnet'] } },
-        slots: { llm: 'cli:sonnet' },
-      } as never),
-      workspace: null,
-    });
-    await expect(
-      resolveStageModel({ stage: 'chat-adapter', workspaceId: null }),
-    ).resolves.toMatchObject({ providerId: 'claude-cli', modelId: 'sonnet' });
-  });
-
   it('attaches no retry when the fallback cannot meet the slot either', async () => {
     const { attachedModelFallback } = await import('@/lib/ai/model-fallbacks');
     state.lookup = lookupFromLayers('agent', {

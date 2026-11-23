@@ -27,14 +27,6 @@ import {
   saveModelSettingsProposal,
   type LegacyModelSettingsState,
 } from '@/lib/legacy-browser-import/model-settings';
-import {
-  clampCaptionPos,
-  DEFAULT_CAPTION_FLOAT_POS,
-  DEFAULT_CAPTION_MODE,
-  normalizeCaptionMode,
-  type CaptionFloatPos,
-  type CaptionMode,
-} from '@/lib/caption-mode';
 import { keepUnimported } from '@/lib/legacy-browser-import/model-settings-unimported';
 
 /** Persisted-blob version for zustand's `persist` `migrate` ladder. */
@@ -155,9 +147,6 @@ export interface SettingsState {
   /** The classroom dock, shared by both modes, so a switch never moves the canvas. */
   dockHeight: number;
   dockCollapsed: boolean;
-  /** How the agent's speech caption shows over the stage; the float bubble's spot is remembered. */
-  captionMode: CaptionMode;
-  captionFloatPos: CaptionFloatPos;
 
   /**
    * The model settings of an earlier build, kept only while they could not be
@@ -197,8 +186,6 @@ export interface SettingsState {
   setChatAreaWidth: (width: number) => void;
   setDockHeight: (height: number) => void;
   setDockCollapsed: (collapsed: boolean) => void;
-  setCaptionMode: (mode: CaptionMode) => void;
-  setCaptionFloatPos: (pos: CaptionFloatPos) => void;
 }
 
 /** The persisted fields: everything but the actions. */
@@ -225,8 +212,6 @@ const PERSISTED_FIELDS = [
   'chatAreaWidth',
   'dockHeight',
   'dockCollapsed',
-  'captionMode',
-  'captionFloatPos',
   'legacyModelSettings',
 ] as const satisfies readonly (keyof SettingsState)[];
 
@@ -315,8 +300,6 @@ export const useSettingsStore = create<SettingsState>()(
       chatAreaWidth: 320,
       dockHeight: DOCK_DEFAULT_HEIGHT,
       dockCollapsed: false,
-      captionMode: DEFAULT_CAPTION_MODE,
-      captionFloatPos: DEFAULT_CAPTION_FLOAT_POS,
 
       setTTSVoice: (voice, providerId) => set({ ttsVoice: voice, ttsVoiceProviderId: providerId }),
       setTTSSpeed: (speed) => set({ ttsSpeed: speed }),
@@ -350,8 +333,6 @@ export const useSettingsStore = create<SettingsState>()(
       setChatAreaCollapsed: (collapsed) => set({ chatAreaCollapsed: collapsed }),
       setDockHeight: (height) => set({ dockHeight: height }),
       setDockCollapsed: (collapsed) => set({ dockCollapsed: collapsed }),
-      setCaptionMode: (mode) => set({ captionMode: normalizeCaptionMode(mode) }),
-      setCaptionFloatPos: (pos) => set({ captionFloatPos: clampCaptionPos(pos) }),
       setChatAreaWidth: (width) => set({ chatAreaWidth: width }),
     }),
     {

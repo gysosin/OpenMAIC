@@ -223,11 +223,6 @@ function buildThinkingProviderOptions(
       return { google: { thinkingConfig: { thinkingBudget: budget } } };
     }
 
-    case 'claude-cli': {
-      const effort = pickThinkingEffort(thinking, config);
-      return effort ? { 'claude-cli': { effort } } : undefined;
-    }
-
     default:
       // OpenAI-compatible providers are injected in providers.ts fetch wrapper.
       return undefined;

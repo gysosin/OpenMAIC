@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "PROFESSOR",
     "you": "VOCÊ",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "Digite sua mensagem...",
     "listening": "Ouvindo...",
     "processing": "Processando...",
@@ -866,7 +858,6 @@
     "voiceInput": "Entrada por voz",
     "voiceInputDisabled": "Entrada por voz desativada",
     "textInput": "Entrada por texto",
-    "send": "Enviar",
     "stopRecording": "Parar gravação",
     "startRecording": "Iniciar gravação"
   },

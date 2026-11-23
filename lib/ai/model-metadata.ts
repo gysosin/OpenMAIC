@@ -486,14 +486,6 @@ const THINKING_CAPABILITIES: Record<string, ThinkingCapability> = {
   [getModelMetadataKey('tokendance', 'qwen3.8-max')]: tokendanceEffort,
   [getModelMetadataKey('tokendance', 'seed-2.1-pro')]: tokendanceEffort,
   [getModelMetadataKey('tokendance', 'minimax-m3')]: tokendanceEffort,
-
-  // The CLI takes up to xhigh and max too; this provider stops at high.
-  ...Object.fromEntries(
-    ['opus', 'sonnet', 'haiku', 'fable'].map((id) => [
-      getModelMetadataKey('claude-cli', id),
-      effortCapability('claude-cli', ['low', 'medium', 'high'], 'medium'),
-    ]),
-  ),
 };
 
 export function getCatalogThinkingCapability(

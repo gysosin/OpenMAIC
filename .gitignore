@@ -107,4 +107,3 @@ render-service/.owner-bound-parent-*/
 
 # Local forced-child eval results
 eval/orchestration/results-child-failure/
-.shots/

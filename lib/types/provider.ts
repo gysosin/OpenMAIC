@@ -25,8 +25,7 @@ export type BuiltInProviderId =
   | 'xiaomi'
   | 'tokendance'
   | 'lemonade'
-  | 'ollama'
-  | 'claude-cli';
+  | 'ollama';
 
 /**
  * Provider ID (built-in or custom)
@@ -37,7 +36,7 @@ export type ProviderId = BuiltInProviderId | `custom-${string}`;
 /**
  * Provider API types
  */
-export type ProviderType = 'openai' | 'azure' | 'anthropic' | 'bedrock' | 'google' | 'claude-cli';
+export type ProviderType = 'openai' | 'azure' | 'anthropic' | 'bedrock' | 'google';
 
 export type ThinkingControlType =
   | 'none'
@@ -66,8 +65,7 @@ export type ThinkingRequestAdapter =
   | 'openrouter'
   | 'hunyuan'
   | 'xiaomi'
-  | 'lemonade'
-  | 'claude-cli';
+  | 'lemonade';
 
 /**
  * Describes a model's thinking/reasoning API control capability.

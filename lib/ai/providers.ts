@@ -60,7 +60,6 @@ import {
 import { createLogger } from '@/lib/logger';
 import { withAppAttributionInit } from '@/lib/config/app-attribution';
 import { normalizeAzureBaseUrl } from './azure';
-import { createClaudeCliModel } from './claude-cli/model';
 // NOTE: Do NOT import thinking-context.ts here — it uses node:async_hooks
 // which is server-only, and this file is also used on the client via
 // settings.ts. The thinking context is read from globalThis instead
@@ -1584,27 +1583,6 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
       },
     ],
   },
-
-  // Local Claude Code CLI on the owner's subscription (lib/ai/claude-cli).
-  // Text generation only: no tool calls, no image input.
-  'claude-cli': {
-    id: 'claude-cli',
-    name: 'Claude Code CLI',
-    type: 'claude-cli',
-    requiresApiKey: false,
-    icon: '/logos/claude.svg',
-    models: ['opus', 'sonnet', 'haiku', 'fable'].map((id) => ({
-      id,
-      name: `Claude ${id[0].toUpperCase()}${id.slice(1)} (CLI)`,
-      contextWindow: 1000000,
-      outputWindow: 128000,
-      capabilities: {
-        streaming: true,
-        tools: false,
-        vision: false,
-      },
-    })),
-  },
 };
 
 applyModelMetadata(PROVIDERS);
@@ -2763,10 +2741,6 @@ export function getModel(config: ModelConfig): ModelWithInfo {
       break;
     }
 
-    case 'claude-cli':
-      model = createClaudeCliModel({ modelId: config.modelId });
-      break;
-
     default:
       throw new Error(`Unsupported provider type: ${providerType}`);
   }
@@ -2847,14 +2821,6 @@ export function getAllModels(): {
 /**
  * Get provider by ID
  */
-/**
- * Provider types that run something on the server host. Only the operator may
- * enable them (openmaic.yml), never a request, a workspace or a custom provider.
- */
-export function isDeploymentOnlyProviderType(type: string | undefined): boolean {
-  return type === 'claude-cli';
-}
-
 export function getProvider(providerId: ProviderId): ProviderConfig | undefined {
   return PROVIDERS[providerId];
 }

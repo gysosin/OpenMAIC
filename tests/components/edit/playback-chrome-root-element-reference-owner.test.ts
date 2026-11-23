@@ -131,9 +131,6 @@ vi.mock('@/lib/store/canvas', () => ({
       },
     },
     getState: () => ({
-      // Playback sets the slide to fill its stage (useWorkbenchProEditing).
-      canvasPercentage: 100,
-      setCanvasPercentage: () => {},
       whiteboardOpen: mocks.whiteboardOpen,
       runtimeWhiteboardProjection: mocks.runtimeProjection,
       whiteboardClearing: false,
@@ -380,7 +377,6 @@ vi.mock('@/lib/store/widget-iframe', () => ({
 }));
 vi.mock('@/lib/orchestration/registry/store', () => ({
   agentsToParticipants: () => [],
-  applyGeneratedAgentsToRegistry: () => [],
   useAgentRegistry: Object.assign(
     (selector: (state: { agents: Record<string, unknown> }) => unknown) => selector({ agents: {} }),
     { getState: () => ({ getAgent: () => undefined }) },

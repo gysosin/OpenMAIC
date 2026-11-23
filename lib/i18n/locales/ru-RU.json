@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "УЧИТЕЛЬ",
     "you": "ВЫ",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "Введите сообщение...",
     "listening": "Слушаю...",
     "processing": "Обработка...",
@@ -866,7 +858,6 @@
     "voiceInput": "Голосовой ввод",
     "voiceInputDisabled": "Голосовой ввод отключён",
     "textInput": "Текстовый ввод",
-    "send": "Отправить",
     "stopRecording": "Остановить запись",
     "startRecording": "Начать запись"
   },

@@ -33,7 +33,6 @@ import type {
 } from './outline-types.js';
 import { DEFAULT_LANGUAGE_DIRECTIVE } from './outline-generator.js';
 import { postProcessInteractiveHtml } from './interactive-post-processor.js';
-import { DEMO_WIDGET_TYPES, generateDemoContent, isDemoKitEnabled } from './demo-generation.js';
 import { findInteractiveScriptSyntaxFailure } from './interactive-script-validator.js';
 import { parseActionsFromStructuredOutput } from './action-parser.js';
 import { parseJsonResponse } from './json-repair.js';
@@ -44,8 +43,7 @@ import {
 } from './prompt-formatters.js';
 import type { PromptId } from './prompts/types.js';
 import { buildPrompt, PROMPT_IDS } from './prompts/index.js';
-import { buildSlideContentPrompt, SLIDE_CANVAS_HEIGHT } from './scene-prompts.js';
-import { applyLayoutGuard } from './layout-guard.js';
+import { buildSlideContentPrompt } from './scene-prompts.js';
 import {
   formatAdditionalWidgetRequirements,
   formatWidgetVariables,
@@ -890,7 +888,7 @@ async function generateSlideContent(
   }
 
   return {
-    elements: applyLayoutGuard(processedElements, SLIDE_CANVAS_HEIGHT),
+    elements: processedElements,
     background,
     remark: generatedData.remark || outline.description,
   };
@@ -1292,13 +1290,6 @@ export async function generateWidgetContent(
   if (!widgetType || !widgetOutline) {
     log.warn(`Interactive outline missing widget config, falling back to standard interactive`);
     return null;
-  }
-
-  // Fork (PLAN.md C3): with OPENMAIC_DEMO_KIT=1, 3D and diagram scenes become demo-kit demos.
-  if (isDemoKitEnabled() && DEMO_WIDGET_TYPES.includes(widgetType)) {
-    const demo = await generateDemoContent(outline, aiCall, languageDirective, log);
-    if (!demo) options.onFailure?.({ code: 'prompt-unavailable' });
-    return demo;
   }
 
   // Select appropriate prompt based on widget type

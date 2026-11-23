@@ -37,7 +37,6 @@ import {
 } from '@/lib/classroom/course-end';
 import { sessionBuildsCourse, useWorkbenchStore } from '@/lib/workbench/session-store';
 import { producerSessionRunning, useRunningSessions } from '@/lib/workbench/running-sessions';
-import { useWorkbenchProEditing } from '@/lib/workbench/use-workbench-pro-edit';
 import { onQuizReviewed } from '@/lib/classroom/quiz-reviewed';
 import { loadQuizAttemptState } from '@/lib/quiz/runtime';
 import { useCanvasStore } from '@/lib/store/canvas';
@@ -175,7 +174,6 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     ref,
   ) {
     const { t } = useI18n();
-    useWorkbenchProEditing(); // slide fills its stage box; the editor keeps the 90% margin
     const {
       mode,
       stage,
@@ -231,7 +229,6 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     const sidebarCollapsed = useSettingsStore((s) => s.sidebarCollapsed);
     const setSidebarCollapsed = useSettingsStore((s) => s.setSidebarCollapsed);
     const chatAreaWidth = useSettingsStore((s) => s.chatAreaWidth);
-    const captionMode = useSettingsStore((s) => s.captionMode);
     const setChatAreaWidth = useSettingsStore((s) => s.setChatAreaWidth);
     const chatAreaCollapsed = useSettingsStore((s) => s.chatAreaCollapsed);
     const setChatAreaCollapsed = useSettingsStore((s) => s.setChatAreaCollapsed);
@@ -350,12 +347,6 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     const beginWaitRef = useRef<((sceneId: string, byHand: boolean) => void) | null>(null);
     const audioPlayerRef = useRef(createAudioPlayer());
     const chatAreaRef = useRef<ChatAreaRef>(null);
-    // Where the agent dock renders: the foot of the side panel's Chat tab.
-    const [dockHost, setDockHost] = useState<HTMLElement | null>(null);
-    const openChat = useCallback(() => {
-      setChatAreaCollapsed(false);
-      chatAreaRef.current?.switchToTab('chat');
-    }, [setChatAreaCollapsed]);
     const lectureSessionIdRef = useRef<string | null>(null);
     const lectureActionCounterRef = useRef(0);
     const currentPlaybackActionIndexRef = useRef<number | null>(currentPlaybackActionIndex);
@@ -1888,7 +1879,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
         ref={stageRef}
         data-playback-stage=""
         className={cn(
-          'flex-1 flex overflow-hidden bg-background',
+          'flex-1 flex overflow-hidden bg-gray-50 dark:bg-gray-900',
           isPresenting && !controlsVisible && 'cursor-none',
         )}
       >
@@ -2003,15 +1994,15 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
             <div
               className={cn(
                 'transition-opacity duration-300',
-                (!isPresenting || captionMode === 'band') && 'shrink-0',
-                // A caption band is reserved height under the slide, not a layer over it.
-                isPresenting && captionMode !== 'band' && 'absolute inset-x-0 bottom-0 z-20',
+                !isPresenting && 'shrink-0',
+                isPresenting && 'absolute inset-x-0 bottom-0 z-20',
               )}
             >
               <Roundtable
                 nextOpensEnd={nextOpensEnd}
-                dockHost={dockHost}
-                onOpenChat={openChat}
+                foldDock={
+                  Boolean(courseEnd) && !lectureSpeech && (playbackCompleted || !firstSpeechText)
+                }
                 courseEndOpen={Boolean(courseEnd) && !isPendingScene}
                 mode={mode}
                 initialParticipants={participants}
@@ -2195,10 +2186,10 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
         <div className="flex shrink-0">
           <ChatArea
             ref={chatAreaRef}
-            onDockHost={setDockHost}
             width={chatAreaWidth}
             onWidthChange={setChatAreaWidth}
             collapsed={chatAreaCollapsed}
+            onCollapseChange={setChatAreaCollapsed}
             activeBubbleId={activeBubbleId}
             onActiveBubble={(id) => setActiveBubbleId(id)}
             currentSceneId={currentSceneId}

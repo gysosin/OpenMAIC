@@ -10,12 +10,7 @@
 import { attachModelFallback } from '@/lib/ai/model-fallbacks';
 import { getProviderPreset } from '@/lib/config/provider-presets';
 import { presetIdFor } from '@/lib/config/preset-ids';
-import {
-  getModel,
-  getProvider,
-  isDeploymentOnlyProviderType,
-  isProviderKeyRequired,
-} from '@/lib/ai/providers';
+import { getModel, getProvider, isProviderKeyRequired } from '@/lib/ai/providers';
 import { fetchWithRedirectValidation } from '@/lib/server/fetch-with-redirect-validation';
 import { clientBaseUrlLlmFetch } from '@/lib/server/llm-provider-fetch';
 import type { LlmStage } from '@/lib/server/model-routes';
@@ -79,12 +74,6 @@ export async function languageModelFor(
       throw new ModelConfigurationError(
         'MODEL_CONFIG_INVALID',
         'Amazon Bedrock can only be configured by the deployment (openmaic.yml)',
-      );
-    }
-    if (isDeploymentOnlyProviderType(registered.type)) {
-      throw new ModelConfigurationError(
-        'MODEL_CONFIG_INVALID',
-        'This provider can only be configured by the deployment (openmaic.yml)',
       );
     }
     if (target.proxy) {

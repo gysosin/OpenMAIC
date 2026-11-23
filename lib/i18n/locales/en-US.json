@@ -839,14 +839,6 @@
   "roundtable": {
     "teacher": "TEACHER",
     "you": "YOU",
-    "captionCycle": "Caption: {{mode}} (Shift+T to change)",
-    "captionMove": "Move caption",
-    "captionMode": {
-      "band": "band",
-      "float": "floating",
-      "pill": "chip",
-      "off": "off"
-    },
     "inputPlaceholder": "Type your message...",
     "listening": "Listening...",
     "processing": "Processing...",
@@ -866,7 +858,6 @@
     "voiceInput": "Voice input",
     "voiceInputDisabled": "Voice input disabled",
     "textInput": "Text input",
-    "send": "Send",
     "stopRecording": "Stop recording",
     "startRecording": "Start recording"
   },
