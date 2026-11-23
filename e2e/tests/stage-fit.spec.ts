@@ -108,14 +108,17 @@ test.describe('Stage fit', () => {
           })
           .toBeLessThan(0.02);
 
-        const { stage, marker } = await measure(page);
-        // Whole stage on screen, slide as wide as its stage.
-        expect(stage.x).toBeGreaterThanOrEqual(0);
-        expect(stage.x + stage.width).toBeLessThanOrEqual(viewport.width + 1);
-        expect(stage.y + stage.height).toBeLessThanOrEqual(viewport.height + 1);
-        // The marker is a 1000-wide text box with 10 canvas-px padding per side, so its
-        // text spans 98% of a full-bleed slide (a 90% letterbox would give ~88%).
-        expect(Math.abs(marker.width - stage.width * 0.98)).toBeLessThanOrEqual(2);
+        // Re-measure until the panel's width transition has settled.
+        await expect(async () => {
+          const { stage, marker } = await measure(page);
+          // Whole stage on screen, slide as wide as its stage.
+          expect(stage.x).toBeGreaterThanOrEqual(0);
+          expect(stage.x + stage.width).toBeLessThanOrEqual(viewport.width + 1);
+          expect(stage.y + stage.height).toBeLessThanOrEqual(viewport.height + 1);
+          // The marker is a 1000-wide text box with 10 canvas-px padding per side, so its
+          // text spans 98% of a full-bleed slide (a 90% letterbox would give ~88%).
+          expect(Math.abs(marker.width - stage.width * 0.98)).toBeLessThanOrEqual(2);
+        }).toPass({ timeout: 10_000 });
       });
     }
   }

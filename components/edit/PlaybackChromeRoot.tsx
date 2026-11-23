@@ -350,6 +350,12 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
     const beginWaitRef = useRef<((sceneId: string, byHand: boolean) => void) | null>(null);
     const audioPlayerRef = useRef(createAudioPlayer());
     const chatAreaRef = useRef<ChatAreaRef>(null);
+    // Where the agent dock renders: the foot of the side panel's Chat tab.
+    const [dockHost, setDockHost] = useState<HTMLElement | null>(null);
+    const openChat = useCallback(() => {
+      setChatAreaCollapsed(false);
+      chatAreaRef.current?.switchToTab('chat');
+    }, [setChatAreaCollapsed]);
     const lectureSessionIdRef = useRef<string | null>(null);
     const lectureActionCounterRef = useRef(0);
     const currentPlaybackActionIndexRef = useRef<number | null>(currentPlaybackActionIndex);
@@ -2004,9 +2010,8 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
             >
               <Roundtable
                 nextOpensEnd={nextOpensEnd}
-                foldDock={
-                  Boolean(courseEnd) && !lectureSpeech && (playbackCompleted || !firstSpeechText)
-                }
+                dockHost={dockHost}
+                onOpenChat={openChat}
                 courseEndOpen={Boolean(courseEnd) && !isPendingScene}
                 mode={mode}
                 initialParticipants={participants}
@@ -2190,6 +2195,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
         <div className="flex shrink-0">
           <ChatArea
             ref={chatAreaRef}
+            onDockHost={setDockHost}
             width={chatAreaWidth}
             onWidthChange={setChatAreaWidth}
             collapsed={chatAreaCollapsed}

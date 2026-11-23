@@ -57,6 +57,8 @@ interface ChatAreaProps {
   currentActionIndex?: number | null;
   canJumpToAction?: (sceneId: string, actionIndex: number) => boolean;
   onJumpToAction?: (sceneId: string, actionIndex: number) => void;
+  /** Receives the element at the foot of the Chat tab, where the agent dock renders. */
+  onDockHost?: (host: HTMLDivElement | null) => void;
 }
 
 export interface ChatAreaRef {
@@ -106,6 +108,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
       currentActionIndex,
       canJumpToAction,
       onJumpToAction,
+      onDockHost,
     },
     ref,
   ) => {
@@ -354,6 +357,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                   </>
                 )}
               </div>
+              <div ref={onDockHost} data-testid="chat-dock-host" className="shrink-0" />
             </TabsContent>
           </Tabs>
         </div>

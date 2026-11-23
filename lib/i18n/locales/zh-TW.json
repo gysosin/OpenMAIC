@@ -866,6 +866,7 @@
     "voiceInput": "語音輸入",
     "voiceInputDisabled": "語音輸入已停用",
     "textInput": "文字輸入",
+    "send": "傳送",
     "stopRecording": "停止錄音",
     "startRecording": "開始錄音"
   },

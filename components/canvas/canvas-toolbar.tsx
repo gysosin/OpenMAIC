@@ -17,8 +17,7 @@ import {
   Maximize2,
   Minimize2,
   Quote,
-  FoldVertical,
-  UnfoldVertical,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStageStore } from '@/lib/store';
@@ -62,11 +61,11 @@ export interface CanvasToolbarProps {
   readonly canPickSlideElement?: boolean;
   readonly elementPickActive?: boolean;
   readonly onToggleElementPick?: () => void;
-  /** The dock's fold, where the toolbar sits in a dock. */
   /** Next on the last page opens the course's end state, so it is not a dead end. */
   readonly nextOpensEnd?: boolean;
-  readonly dockCollapsed?: boolean;
-  readonly onToggleDock?: () => void;
+  /** Opens the side panel on its Chat tab (mic and text input), also from a folded panel. */
+  readonly onOpenChat?: () => void;
+  readonly chatOpen?: boolean;
 }
 
 /* Compact control button */
@@ -133,8 +132,8 @@ export function CanvasToolbar({
   elementPickActive,
   onToggleElementPick,
   nextOpensEnd,
-  dockCollapsed,
-  onToggleDock,
+  onOpenChat,
+  chatOpen,
 }: CanvasToolbarProps) {
   const { t } = useI18n();
   const remainingSoftCloseSeconds = useSoftCloseCountdown(softCloseDeadline);
@@ -469,24 +468,24 @@ export function CanvasToolbar({
         </div>
       </div>
 
-      {/* ── Right: dock fold, fullscreen, then the chat toggle at the edge ── */}
+      {/* ── Right: chat entry, fullscreen, then the panel toggle at the edge ── */}
       <div className="flex items-center justify-end gap-px shrink-0 pr-1">
         <CtrlDivider />
-        {onToggleDock && (
+        {onOpenChat && (
           <button
             type="button"
-            data-testid="dock-fold"
-            aria-expanded={!dockCollapsed}
-            onClick={onToggleDock}
-            className={cn(ctrlBtn, 'w-6 h-6 text-gray-500 dark:text-gray-400')}
-            aria-label={t(dockCollapsed ? 'stage.dock.expand' : 'stage.dock.collapse')}
-            title={t(dockCollapsed ? 'stage.dock.expand' : 'stage.dock.collapse')}
-          >
-            {dockCollapsed ? (
-              <UnfoldVertical className="w-3.5 h-3.5" />
-            ) : (
-              <FoldVertical className="w-3.5 h-3.5" />
+            data-testid="open-chat"
+            onClick={onOpenChat}
+            className={cn(
+              ctrlBtn,
+              'w-6 h-6',
+              chatOpen ? 'text-primary-text' : 'text-muted-foreground hover:text-foreground',
             )}
+            aria-pressed={chatOpen}
+            aria-label={t('chat.tabs.chat')}
+            title={t('chat.tabs.chat')}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
           </button>
         )}
         {onTogglePresentation && (

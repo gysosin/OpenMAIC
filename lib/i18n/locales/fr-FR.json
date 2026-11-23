@@ -866,6 +866,7 @@
     "voiceInput": "Saisie vocale",
     "voiceInputDisabled": "Saisie vocale désactivée",
     "textInput": "Saisie au clavier",
+    "send": "Envoyer",
     "stopRecording": "Arrêter l’enregistrement",
     "startRecording": "Démarrer l’enregistrement"
   },
