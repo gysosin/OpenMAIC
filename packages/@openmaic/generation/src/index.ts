@@ -147,3 +147,24 @@ export type {
   Vec3,
 } from './demo-spec.js';
 export { buildDemoShell } from './demo-shell.js';
+export {
+  PRESET_NAMES,
+  PRESET_PARAMS,
+  LOGIC_CIRCUITS,
+  DATA_STRUCTURES,
+  bitRegisterParams,
+  logicCircuitParams,
+  memoryGridParams,
+  dataStructureParams,
+} from './demo-presets.js';
+export type {
+  BitRegisterParams,
+  DataOp,
+  DataStructure,
+  DataStructureParams,
+  LogicCircuit,
+  LogicCircuitParams,
+  MemoryGridParams,
+  MemoryOp,
+  PresetName,
+} from './demo-presets.js';

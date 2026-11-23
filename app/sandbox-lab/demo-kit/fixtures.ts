@@ -1,7 +1,7 @@
 /**
  * Hand-written DemoSpec fixtures for the demo kit (story 3.2): the C3 half
- * adder and an 8-bit register counting powers of two. Used by the sandbox lab
- * page and e2e/tests/demo-kit.spec.ts.
+ * adder and an 8-bit register counting powers of two; plus one preset spec per
+ * batch 1 preset (story 3.4). Used by the sandbox lab page and the demo-kit e2e specs.
  */
 import type { DemoSpec } from '@openmaic/generation';
 
@@ -141,5 +141,25 @@ export const BIT_REGISTER: DemoSpec = {
 
 export const DEMO_FIXTURES = { 'half-adder': HALF_ADDER, 'bit-register': BIT_REGISTER } as const;
 export type DemoFixtureName = keyof typeof DEMO_FIXTURES;
+
+const preset = (name: string, title: string, params: Record<string, unknown>): DemoSpec => ({
+  version: 1,
+  kind: 'preset',
+  preset: name,
+  params,
+  title,
+  objects: [],
+  steps: [],
+  controls: [],
+});
+
+/** One `kind: "preset"` spec per batch 1 preset (story 3.4); the kit expands them. */
+export const PRESET_FIXTURES = {
+  'preset-bit-register': preset('bit-register', "8-bit two's complement", { bits: 8, mode: 'twos-complement' }),
+  'preset-logic-circuit': preset('logic-circuit', 'Full adder', { circuit: 'full-adder' }),
+  'preset-memory-grid': preset('memory-grid', 'Memory, pointers and the stack', {}),
+  'preset-data-structure': preset('data-structure', 'Binary search tree', { structure: 'binary-tree' }),
+} as const;
+export type PresetFixtureName = keyof typeof PRESET_FIXTURES;
 
 export const DEMO_KIT_URL = '/vendor/interactive/demo-kit@1/demo-kit.js';

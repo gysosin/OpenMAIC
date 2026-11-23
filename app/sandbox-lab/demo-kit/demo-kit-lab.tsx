@@ -3,9 +3,20 @@ import { useEffect, useRef, useState } from 'react';
 
 import { buildDemoShell } from '@openmaic/generation/browser';
 
-import { DEMO_FIXTURES, DEMO_KIT_URL, type DemoFixtureName } from './fixtures';
+import { expandPreset } from '@/lib/demo-kit/presets';
 
-const NAMES = Object.keys(DEMO_FIXTURES) as DemoFixtureName[];
+import { DEMO_FIXTURES, DEMO_KIT_URL, PRESET_FIXTURES } from './fixtures';
+
+const FIXTURES = { ...DEMO_FIXTURES, ...PRESET_FIXTURES };
+type FixtureName = keyof typeof FIXTURES;
+const NAMES = Object.keys(FIXTURES) as FixtureName[];
+/** Step ids per fixture; preset specs list theirs only once expanded. */
+const STEPS = Object.fromEntries(
+  NAMES.map((name) => {
+    const spec = FIXTURES[name];
+    return [name, ((spec.kind === 'preset' ? expandPreset(spec) : spec)?.steps ?? []).map((s) => s.id)];
+  }),
+) as Record<FixtureName, string[]>;
 
 /**
  * Loads each fixture spec in the same sandboxed iframe the classroom uses
@@ -14,13 +25,13 @@ const NAMES = Object.keys(DEMO_FIXTURES) as DemoFixtureName[];
 export default function DemoKitLab() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [log, setLog] = useState<string[]>([]);
-  const frames = useRef<Partial<Record<DemoFixtureName, HTMLIFrameElement | null>>>({});
+  const frames = useRef<Partial<Record<FixtureName, HTMLIFrameElement | null>>>({});
   // The shell is built once with the starting theme; later changes go through SET_THEME.
   const [shells] = useState(() =>
     Object.fromEntries(
       NAMES.map((name) => [
         name,
-        buildDemoShell(DEMO_FIXTURES[name], { kitUrl: DEMO_KIT_URL, title: name, lang: 'en' }).replace(
+        buildDemoShell(FIXTURES[name], { kitUrl: DEMO_KIT_URL, title: name, lang: 'en' }).replace(
           '<html ',
           '<html data-theme="dark" ',
         ),
@@ -38,7 +49,7 @@ export default function DemoKitLab() {
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
-  function send(name: DemoFixtureName, message: Record<string, unknown>) {
+  function send(name: FixtureName, message: Record<string, unknown>) {
     frames.current[name]?.contentWindow?.postMessage(message, '*');
   }
 
@@ -66,14 +77,14 @@ export default function DemoKitLab() {
           <section key={name} className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="font-medium">{name}</span>
-              {(DEMO_FIXTURES[name].steps ?? []).map((step) => (
+              {STEPS[name].map((step) => (
                 <button
-                  key={step.id}
+                  key={step}
                   type="button"
                   className="rounded border px-2 py-0.5 font-mono text-xs hover:bg-muted"
-                  onClick={() => send(name, { type: 'SET_WIDGET_STATE', state: { step: step.id } })}
+                  onClick={() => send(name, { type: 'SET_WIDGET_STATE', state: { step } })}
                 >
-                  {step.id}
+                  {step}
                 </button>
               ))}
             </div>
