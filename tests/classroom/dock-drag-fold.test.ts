@@ -341,11 +341,10 @@ describe('the classroom dock edge', () => {
 describe('the dock under reduced motion and at the end of a drag', () => {
   const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-  it('drops its height transition for reduced motion, in both modes', () => {
-    for (const path of [
-      'components/roundtable/index.tsx',
-      'components/edit/EditDock/EditDock.tsx',
-    ]) {
+  it('drops its height transition for reduced motion in the editor dock', () => {
+    // Fork (story 2.3): playback has no resizable dock under the stage any more; its
+    // controls live in the Chat tab, so only the editor's dock still animates height.
+    for (const path of ['components/edit/EditDock/EditDock.tsx']) {
       expect(read(path)).toContain(
         'data-[dragging=true]:transition-none motion-reduce:transition-none',
       );
