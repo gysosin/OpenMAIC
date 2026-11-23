@@ -539,3 +539,8 @@ Parallel lanes: {1.1, 1.3, 1.5, 1.6} can start together. 1.2 and 1.4 follow 1.1 
 3. Non-spatial topics may use an animated 2.5D board; real 3D wherever the topic has structure.
 4. The fork freezes at v1.5.0-rc.3 and diverges freely; no `upstream/main` merges. Hot-file "additive only" rules are relaxed, but one story per hot file at a time still holds.
 5. Existing lessons: only the 29-scene course remains (the 2-scene one was deleted). Leave it; 5.3 stays optional.
+
+### Review follow-ups for presets (from 3.4 review, 2026-11-23) — fold into 3.7
+- memory-grid: pointer arrows route through neighbouring cells (p→x passes over y); route them above the row with a curve. Long values (e.g. `0x100`) overflow the cell — scale the label to fit.
+- data-structure (tree): the coloured status plates behind nodes are offset and read as misaligned shadows; centre them or use an outline ring.
+- Replace the U+2060 trick that stops 0/1 values being coloured as logic bits with an explicit per-object flag in the schema (e.g. `valueStyle: "number" | "bit"`).
