@@ -6,6 +6,7 @@
  */
 import gsap from 'gsap';
 import * as THREE from 'three';
+import { FlowPlayer } from '../flow/player';
 import { listenToHost, postToHost } from './bridge';
 import { Chrome, STYLES } from './controls';
 import { buildTimeline, setAnims, stepAt, type BuiltTimeline } from './motion';
@@ -13,11 +14,12 @@ import { bodyColor, buildPrimitive, disposePrimitive, gatePorts, syncPrimitive, 
 import { Stage, type Pose } from './stage';
 import { cssVariables, initialTheme, THEMES, type Theme, type ThemeName } from './theme';
 import { buildStates, isVec3, resolveStepIndex, withOverrides, type ObjectState, type StepState } from './timeline';
-import type { CameraTarget, DemoObject, DemoSpec, PrimitiveType, Scalar, Vec3 } from './types';
+import type { CameraTarget, DemoObject, DemoSpec, FlowType, PrimitiveType, Scalar, Vec3 } from './types';
 
-const TYPES = new Set<PrimitiveType>([
+const TYPES = new Set<string>([
   'box', 'sphere', 'cylinder', 'plane', 'arrow', 'wire', 'label', 'grid', 'group', 'cell', 'gate', 'surface',
-]);
+] satisfies PrimitiveType[]);
+const FLOW_TYPES = new Set<string>(['node', 'edge', 'token'] satisfies FlowType[]);
 const MAX_OBJECTS = 400;
 /** Hold on each step while playing, after its motion ends. */
 const HOLD = 2.2;
@@ -30,8 +32,9 @@ function readSpec(): DemoSpec | null {
     if (!spec || spec.version !== 1) return null;
     // The server validates with zod; this keeps a hand-edited spec from crashing the stage.
     const seen = new Set<string>();
+    const types = spec.kind === 'flow' ? FLOW_TYPES : TYPES;
     spec.objects = (Array.isArray(spec.objects) ? spec.objects : [])
-      .filter((o) => o && typeof o.id === 'string' && TYPES.has(o.type) && !seen.has(o.id) && seen.add(o.id))
+      .filter((o) => o && typeof o.id === 'string' && types.has(o.type) && !seen.has(o.id) && seen.add(o.id))
       .slice(0, MAX_OBJECTS);
     spec.steps = (Array.isArray(spec.steps) ? spec.steps : []).filter((s) => s && typeof s.id === 'string');
     spec.controls = (Array.isArray(spec.controls) ? spec.controls : []).filter(
@@ -571,7 +574,7 @@ function boot(): void {
     root.appendChild(error);
     return;
   }
-  const player = new DemoPlayer(spec, document.body);
+  const player = spec.kind === 'flow' ? new FlowPlayer(spec, document.body) : new DemoPlayer(spec, document.body);
   (window as unknown as { demoKit: unknown }).demoKit = player.api();
 }
 
