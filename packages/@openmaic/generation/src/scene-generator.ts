@@ -33,6 +33,7 @@ import type {
 } from './outline-types.js';
 import { DEFAULT_LANGUAGE_DIRECTIVE } from './outline-generator.js';
 import { postProcessInteractiveHtml } from './interactive-post-processor.js';
+import { DEMO_WIDGET_TYPES, generateDemoContent, isDemoKitEnabled } from './demo-generation.js';
 import { findInteractiveScriptSyntaxFailure } from './interactive-script-validator.js';
 import { parseActionsFromStructuredOutput } from './action-parser.js';
 import { parseJsonResponse } from './json-repair.js';
@@ -1291,6 +1292,13 @@ export async function generateWidgetContent(
   if (!widgetType || !widgetOutline) {
     log.warn(`Interactive outline missing widget config, falling back to standard interactive`);
     return null;
+  }
+
+  // Fork (PLAN.md C3): with OPENMAIC_DEMO_KIT=1, 3D and diagram scenes become demo-kit demos.
+  if (isDemoKitEnabled() && DEMO_WIDGET_TYPES.includes(widgetType)) {
+    const demo = await generateDemoContent(outline, aiCall, languageDirective, log);
+    if (!demo) options.onFailure?.({ code: 'prompt-unavailable' });
+    return demo;
   }
 
   // Select appropriate prompt based on widget type

@@ -17,7 +17,7 @@ import {
   shouldFallbackFor,
   logFallbackFired,
 } from '@/lib/server/llm-fallback';
-import { buildPrompt, PROMPT_IDS } from '@/lib/prompts';
+import { buildPrompt, loadSnippet, PROMPT_IDS } from '@/lib/prompts';
 import {
   formatImageDescription,
   formatImagePlaceholder,
@@ -27,7 +27,11 @@ import {
   formatTeacherPersonaForPrompt,
 } from '@openmaic/generation';
 import type { AgentInfo } from '@openmaic/generation';
-import { DEFAULT_LANGUAGE_DIRECTIVE } from '@openmaic/generation';
+import {
+  DEFAULT_LANGUAGE_DIRECTIVE,
+  ensureDemoOutline,
+  isDemoKitEnabled,
+} from '@openmaic/generation';
 import { MAX_PDF_CONTENT_CHARS, MAX_VISION_IMAGES } from '@/lib/constants/generation';
 import { MAX_OUTLINE_SCENES } from '@/lib/server/generation/outline-schema';
 import { nanoid } from 'nanoid';
@@ -529,6 +533,11 @@ async function prepareOutline(
     throw new StepRefusal<OutlineRefusal>('prompt-unavailable', 'Prompt template not found');
   }
 
+  // Fork (PLAN.md C4): with the demo kit on, ask for demos in every lesson.
+  if (isDemoKitEnabled() && !taskEngineMode) {
+    prompts = { ...prompts, system: `${prompts.system}\n\n${loadSnippet('demo-kit-outline')}` };
+  }
+
   ctx.log.info(
     `Generating outlines: "${requirements.requirement.substring(0, 50)}" [model=${modelString}]`,
   );
@@ -814,9 +823,16 @@ async function streamOutlines(
     });
   }
 
+  // Fork (PLAN.md C4): the prompt asks for a demo; this guarantees one.
+  const outlines =
+    isDemoKitEnabled() && !taskEngineMode && parsedOutlines.length < MAX_OUTLINE_SCENES
+      ? ensureDemoOutline(parsedOutlines)
+      : parsedOutlines;
+  if (outlines !== parsedOutlines) log.info('Outline had no demo scene; inserted one');
+
   return {
     // Replace sequential gen_img_N/gen_vid_N with globally unique IDs
-    outlines: uniquifyMediaElementIds(parsedOutlines),
+    outlines: uniquifyMediaElementIds(outlines),
     languageDirective: languageDirective || DEFAULT_LANGUAGE_DIRECTIVE,
     courseTitle: courseTitle || undefined,
     taskEngineMode,
