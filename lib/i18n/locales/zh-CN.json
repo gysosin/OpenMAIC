@@ -866,6 +866,7 @@
     "voiceInput": "语音输入",
     "voiceInputDisabled": "语音输入已禁用",
     "textInput": "文字输入",
+    "send": "发送",
     "stopRecording": "停止录音",
     "startRecording": "开始录音"
   },

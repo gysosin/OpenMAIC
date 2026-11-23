@@ -866,6 +866,7 @@
     "voiceInput": "Entrada por voz",
     "voiceInputDisabled": "Entrada por voz desativada",
     "textInput": "Entrada por texto",
+    "send": "Enviar",
     "stopRecording": "Parar gravação",
     "startRecording": "Iniciar gravação"
   },

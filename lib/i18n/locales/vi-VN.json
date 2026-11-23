@@ -866,6 +866,7 @@
     "voiceInput": "Nhập bằng giọng nói",
     "voiceInputDisabled": "Đã tắt nhập bằng giọng nói",
     "textInput": "Nhập bằng chữ",
+    "send": "Gửi",
     "stopRecording": "Dừng ghi âm",
     "startRecording": "Bắt đầu ghi âm"
   },

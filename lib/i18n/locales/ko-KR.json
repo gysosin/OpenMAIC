@@ -866,6 +866,7 @@
     "voiceInput": "음성 입력",
     "voiceInputDisabled": "음성 입력 비활성화됨",
     "textInput": "텍스트 입력",
+    "send": "보내기",
     "stopRecording": "녹음 중지",
     "startRecording": "녹음 시작"
   },

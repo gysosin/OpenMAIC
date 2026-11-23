@@ -4,7 +4,6 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Roundtable } from '@/components/roundtable';
 import { computePlaybackView } from '@/lib/playback/derived-state';
-import { useSettingsStore } from '@/lib/store/settings';
 
 vi.mock('@/lib/hooks/use-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 vi.mock('@/lib/hooks/use-audio-recorder', () => ({
@@ -38,16 +37,20 @@ const view = computePlaybackView({
 
 describe('Roundtable suggested replies', () => {
   let container: HTMLDivElement;
+  let host: HTMLDivElement;
   let root: Root;
   beforeEach(() => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
     container = document.createElement('div');
-    document.body.appendChild(container);
+    // The side panel's Chat tab foot, where the dock renders in normal playback.
+    host = document.createElement('div');
+    document.body.append(container, host);
     root = createRoot(container);
   });
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    host.remove();
     vi.unstubAllGlobals();
   });
   const render = async (extra: Partial<ComponentProps<typeof Roundtable>> = {}) => {
@@ -59,10 +62,19 @@ describe('Roundtable suggested replies', () => {
           sessionType: 'qa',
           isStreaming: false,
           controlsVisible: true,
+          dockHost: host,
           ...extra,
         }),
       ),
     );
+  };
+  /** Where the controls are: the window in full-screen, the side panel otherwise. */
+  const controls = (isPresenting: boolean) => (isPresenting ? container : host);
+  const cueButton = (isPresenting: boolean) => {
+    const panel = controls(isPresenting).querySelector('[data-testid="cue-user-panel"]')!;
+    return (
+      panel.tagName === 'BUTTON' ? panel : panel.querySelector('button')
+    ) as HTMLButtonElement;
   };
 
   it.each([
@@ -76,10 +88,10 @@ describe('Roundtable suggested replies', () => {
     'keeps main idle cue without bubbles when options are empty ($isPresenting, $cueUserOptions)',
     async (extra) => {
       await render(extra);
-      expect(container.querySelector('[data-bubble-role]')).toBeNull();
-      expect(container.querySelector('[data-testid="cue-user-options"]')).toBeNull();
-      expect(container.textContent).toContain('roundtable.yourTurn');
-      expect(container.textContent).not.toContain('Old lecture');
+      expect(document.body.querySelector('[data-bubble-role]')).toBeNull();
+      expect(document.body.querySelector('[data-testid="cue-user-options"]')).toBeNull();
+      expect(controls(extra.isPresenting).textContent).toContain('roundtable.yourTurn');
+      expect(document.body.textContent).not.toContain('Old lecture');
     },
   );
 
@@ -95,7 +107,7 @@ describe('Roundtable suggested replies', () => {
         onMessageSend,
         onStopDiscussion,
       });
-      const replies = container.querySelector('[data-testid="cue-user-options"]');
+      const replies = controls(isPresenting).querySelector('[data-testid="cue-user-options"]');
       expect(replies).not.toBeNull();
       expect(replies?.querySelectorAll('button')).toHaveLength(2);
       const button = replies!.querySelectorAll('button')[1] as HTMLButtonElement;
@@ -123,7 +135,7 @@ describe('Roundtable suggested replies', () => {
         canSendMessage,
         onMessageSend,
       });
-      const button = container.querySelector(
+      const button = controls(isPresenting).querySelector(
         '[data-testid="cue-user-options"] button',
       ) as HTMLButtonElement;
       act(() => button.click());
@@ -139,11 +151,8 @@ describe('Roundtable suggested replies', () => {
     'keeps manual input available while offering replies (fullscreen=%s)',
     async (isPresenting) => {
       await render({ isPresenting, cueUserOptions: ['Show an example', 'Keep going'] });
-      const cueButton = container.querySelector(
-        '[data-testid="cue-user-panel"] button',
-      ) as HTMLButtonElement;
-      act(() => cueButton.click());
-      expect(container.querySelector('textarea')).not.toBeNull();
+      act(() => cueButton(isPresenting).click());
+      expect(controls(isPresenting).querySelector('textarea')).not.toBeNull();
     },
   );
 
@@ -155,7 +164,7 @@ describe('Roundtable suggested replies', () => {
         isCueUser: false,
         cueUserOptions: ['Show an example', 'Keep going'],
       });
-      expect(container.querySelector('[data-testid="cue-user-options"]')).toBeNull();
+      expect(document.body.querySelector('[data-testid="cue-user-options"]')).toBeNull();
     },
   );
 
@@ -163,19 +172,21 @@ describe('Roundtable suggested replies', () => {
     'renders replies as a suggested user bubble, not inside the centered cue (fullscreen=%s)',
     async (isPresenting) => {
       await render({ isPresenting, cueUserOptions: ['Show an example', 'Keep going'] });
-      const bubble = container.querySelector('[data-testid="cue-user-suggested-bubble"]');
-      const replies = container.querySelector('[data-testid="cue-user-options"]');
+      const where = controls(isPresenting);
+      const bubble = where.querySelector('[data-testid="cue-user-suggested-bubble"]');
+      const replies = where.querySelector('[data-testid="cue-user-options"]');
       expect(bubble).not.toBeNull();
       expect(bubble?.contains(replies)).toBe(true);
       expect(
-        container.querySelector('[data-testid="cue-user-panel"] [data-testid="cue-user-options"]'),
+        where.querySelector('[data-testid="cue-user-panel"] [data-testid="cue-user-options"]'),
       ).toBeNull();
-      // Outlined "you could say" variant, never the filled "you said" bubble.
-      const surface = bubble!.firstElementChild!.classList;
-      expect(surface.contains('border-dashed')).toBe(true);
-      expect(surface.contains('rounded-br-sm')).toBe(true);
-      expect(surface.contains('bg-purple-600/95')).toBe(false);
-      if (!isPresenting) expect(bubble?.getAttribute('class')).toContain('justify-end');
+      if (isPresenting) {
+        // Outlined "you could say" variant, never the filled "you said" bubble.
+        const surface = bubble!.firstElementChild!.classList;
+        expect(surface.contains('border-dashed')).toBe(true);
+        expect(surface.contains('rounded-br-sm')).toBe(true);
+        expect(surface.contains('bg-purple-600/95')).toBe(false);
+      }
     },
   );
 
@@ -183,13 +194,12 @@ describe('Roundtable suggested replies', () => {
     'hides the suggested bubble while the text input is open (fullscreen=%s)',
     async (isPresenting) => {
       await render({ isPresenting, cueUserOptions: ['Show an example', 'Keep going'] });
-      const cueButton = container.querySelector(
-        '[data-testid="cue-user-panel"] button',
-      ) as HTMLButtonElement;
-      act(() => cueButton.click());
-      expect(container.querySelector('textarea')).not.toBeNull();
+      act(() => cueButton(isPresenting).click());
+      expect(controls(isPresenting).querySelector('textarea')).not.toBeNull();
       await vi.waitFor(() =>
-        expect(container.querySelector('[data-testid="cue-user-suggested-bubble"]')).toBeNull(),
+        expect(
+          controls(isPresenting).querySelector('[data-testid="cue-user-suggested-bubble"]'),
+        ).toBeNull(),
       );
     },
   );
@@ -199,27 +209,22 @@ describe('Roundtable suggested replies', () => {
     async (isPresenting) => {
       const options = ['a', 'b', 'c', 'd'].map((label) => label.repeat(60));
       await render({ isPresenting, cueUserOptions: options });
-      const regions = container.querySelectorAll('[data-testid="cue-user-options"]');
+      const regions = document.body.querySelectorAll('[data-testid="cue-user-options"]');
       expect(regions).toHaveLength(1);
       const replies = regions[0];
       expect(replies?.querySelectorAll('button')).toHaveLength(4);
       const classes = replies?.getAttribute('class') ?? '';
       expect(classes).toContain('flex-wrap');
       expect(classes).toContain('overflow-y-auto');
-      expect(classes).toContain('max-h-[3.75rem]');
+      expect(classes).toMatch(/max-h-/);
       for (const button of replies!.querySelectorAll('button')) {
         expect(button.getAttribute('class')).toContain('truncate');
       }
-      expect(container.querySelector('[data-bubble-role]')).toBeNull();
-      if (!isPresenting) {
-        expect(
-          container.querySelector<HTMLElement>('[data-testid="roundtable-region"]')?.style.height,
-        ).toBe('192px');
-      }
+      expect(document.body.querySelector('[data-bubble-role]')).toBeNull();
     },
   );
 
-  describe('with the dock folded', () => {
+  describe('in normal playback', () => {
     const layer = () => container.querySelector('[data-testid="roundtable-speech-layer"]');
     const lecture = computePlaybackView({
       engineMode: 'playing',
@@ -236,56 +241,56 @@ describe('Roundtable suggested replies', () => {
       speakingStudent: false,
       sessionType: null,
     });
-    const folded = (extra: Partial<ComponentProps<typeof Roundtable>> = {}) =>
+    const plain = (extra: Partial<ComponentProps<typeof Roundtable>> = {}) =>
       render({ playbackView: lecture, isCueUser: false, sessionType: undefined, ...extra });
-    beforeEach(() => useSettingsStore.setState({ dockCollapsed: true }));
-    afterEach(() => useSettingsStore.setState({ dockCollapsed: false }));
 
-    it('puts the speech layer beside the dock, anchored to the stage and not the window', async () => {
-      await folded();
+    it('puts the speech over the stage and leaves one bar, the transport bar, under it', async () => {
+      await plain();
       const region = container.querySelector('[data-testid="roundtable-region"]');
       expect(region).not.toBeNull();
       expect(layer()).not.toBeNull();
-      // Inside the dock's backdrop-filter the bubble's own blur would see nothing.
       expect(region?.contains(layer())).toBe(false);
       expect(layer()?.querySelector('.fixed')).toBeNull();
       expect(layer()?.textContent).toContain('The lecture goes on');
+      // No dock, no input, no mic under the stage.
+      expect(container.querySelector('textarea')).toBeNull();
+      expect(container.querySelector('[aria-label="roundtable.textInput"]')).toBeNull();
     });
 
-    it('offers the same ways to speak as full-screen, without a second input', async () => {
-      await folded();
-      expect(layer()?.querySelector('[aria-label="roundtable.textInput"]')).not.toBeNull();
-      expect(layer()?.querySelector('[aria-label="roundtable.voiceInputDisabled"]')).not.toBeNull();
-      const textInput = layer()?.querySelector<HTMLButtonElement>(
+    it('offers mic and text input from the side panel, with one input', async () => {
+      await plain();
+      expect(host.querySelector('[aria-label="roundtable.voiceInputDisabled"]')).not.toBeNull();
+      const textInput = host.querySelector<HTMLButtonElement>(
         '[aria-label="roundtable.textInput"]',
       );
       await act(async () => textInput?.click());
-      expect(container.querySelectorAll('textarea')).toHaveLength(1);
-      expect(layer()?.querySelector('textarea')).not.toBeNull();
+      expect(document.body.querySelectorAll('textarea')).toHaveLength(1);
+      expect(host.querySelector('textarea')).not.toBeNull();
     });
 
-    it('moves the suggested replies over the stage rather than doubling them', async () => {
-      await render({ cueUserOptions: ['Show an example'] });
-      expect(container.querySelectorAll('[data-testid="cue-user-options"]')).toHaveLength(1);
-      expect(layer()?.querySelector('[data-testid="cue-user-options"]')).not.toBeNull();
+    it('asks for the Chat tab when an input opens, and renders nothing without a host', async () => {
+      const onOpenChat = vi.fn();
+      await plain({ dockHost: null, onOpenChat });
+      expect(host.children).toHaveLength(0);
+      expect(onOpenChat).not.toHaveBeenCalled();
+      await plain({ dockHost: host, onOpenChat });
+      const textInput = host.querySelector<HTMLButtonElement>(
+        '[aria-label="roundtable.textInput"]',
+      );
+      await act(async () => textInput?.click());
+      expect(onOpenChat).toHaveBeenCalled();
     });
 
     it('leaves the stage to the course end', async () => {
-      await folded({ courseEndOpen: true });
-      expect(layer()).toBeNull();
-    });
-
-    it('goes back into the dock once it unfolds', async () => {
-      await folded();
-      expect(layer()).not.toBeNull();
-      await act(async () => useSettingsStore.setState({ dockCollapsed: false }));
+      await plain({ courseEndOpen: true });
       expect(layer()).toBeNull();
     });
 
     it('keeps full-screen pinned to the window, with the toolbar in the layer', async () => {
-      await folded({ isPresenting: true });
+      await plain({ isPresenting: true });
       expect(container.querySelector('[data-testid="roundtable-region"]')).toBeNull();
       expect(layer()?.querySelector('.fixed')).not.toBeNull();
+      expect(host.children).toHaveLength(0);
     });
   });
 });

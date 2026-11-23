@@ -18,7 +18,7 @@ async function seedLesson(page: Page) {
       localStorage.setItem('maic:account:settings-storage', settings);
       localStorage.setItem('locale', 'en-US');
     },
-    createSettingsStorage({ autoPlayLecture: false, ttsMuted: true }),
+    createSettingsStorage({ autoPlayLecture: false, ttsMuted: true, chatAreaCollapsed: false }),
   );
   await page.goto('/classroom/warmup-nonexistent');
   const stageId = uniqueStageId('cue-options');
@@ -158,7 +158,8 @@ async function assertOptionsLayout(page: Page) {
         bottom: surface.bottom,
         height: surface.height,
       },
-      cue: { left: cue.left, right: cue.right },
+      fullscreen: !!document.fullscreenElement,
+      cue: { left: cue.left, right: cue.right, bottom: cue.bottom },
       top: rect.top,
       bottom: rect.bottom,
       right: rect.right,
@@ -175,7 +176,12 @@ async function assertOptionsLayout(page: Page) {
   expect(metrics.bubble.top).toBeGreaterThanOrEqual(0);
   expect(metrics.bubble.bottom).toBeLessThanOrEqual(metrics.viewportHeight);
   expect(metrics.bubble.left).toBeGreaterThan(metrics.viewportWidth / 2);
-  expect(metrics.bubble.left).toBeGreaterThanOrEqual(metrics.cue.right);
+  // Full-screen keeps them beside the cue; in the side panel they sit under it.
+  if (metrics.fullscreen) {
+    expect(metrics.bubble.left).toBeGreaterThanOrEqual(metrics.cue.right);
+  } else {
+    expect(metrics.bubble.top).toBeGreaterThanOrEqual(metrics.cue.bottom - 1);
+  }
   // Long labels wrap into rows and scroll vertically inside the bubble.
   expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight);
   expect(new Set(metrics.buttons.map((button) => Math.round(button.top))).size).toBeGreaterThan(1);
@@ -192,7 +198,7 @@ async function screenshot(page: Page, info: TestInfo, name: string) {
   await page.screenshot({ path: info.outputPath(name), fullPage: true });
 }
 
-test('suggested strings stay in 192px, send once as ordinary messages, and disappear on reload', async ({
+test('suggested strings leave the transport bar alone, send once as ordinary messages, and disappear on reload', async ({
   page,
   mockApi,
 }, info) => {
@@ -220,7 +226,7 @@ test('suggested strings stay in 192px, send once as ordinary messages, and disap
   const requests = await mockChat(page, true);
   const stageId = await seedLesson(page);
   const idle = await geometry(page);
-  expect(idle.height).toBe(192);
+  expect(idle.height).toBe(44);
   await page.keyboard.press('V');
   await expect(page.getByText('Listening...', { exact: true })).toBeVisible();
   expect(await geometry(page)).toEqual(idle);
@@ -228,7 +234,7 @@ test('suggested strings stay in 192px, send once as ordinary messages, and disap
   await expect(page.getByText('Listening...', { exact: true })).toHaveCount(0);
   const play = page.locator('div[class*="z-[102]"] div.pointer-events-auto').first();
   await play.click();
-  await expect(page.getByTestId('roundtable-region')).toContainText('interrupted lecture sentence');
+  await expect(page.getByTestId('caption')).toContainText('interrupted lecture sentence');
   expect(await geometry(page)).toEqual(idle);
   await page.keyboard.press('T');
   await expect(page.getByPlaceholder('Type your message...', { exact: true })).toBeVisible();
@@ -237,7 +243,7 @@ test('suggested strings stay in 192px, send once as ordinary messages, and disap
     .getByPlaceholder('Type your message...', { exact: true })
     .fill('Could you explain this?');
   await page.getByPlaceholder('Type your message...', { exact: true }).press('Enter');
-  expect((await geometry(page)).height).toBe(192);
+  expect((await geometry(page)).height).toBe(44);
   const normalMetrics = await assertOptionsLayout(page);
   expect(await geometry(page)).toEqual(idle);
   expect(requests).toHaveLength(1);
@@ -289,7 +295,7 @@ test('suggested strings stay in 192px, send once as ordinary messages, and disap
   await page.getByTitle('Stop Discussion', { exact: true }).click();
   await expect(page.getByTestId('cue-user-options')).toHaveCount(0);
   expect(requests).toHaveLength(3);
-  expect((await geometry(page)).height).toBe(192);
+  expect((await geometry(page)).height).toBe(44);
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
   await info.attach('suggested-reply-layout', {

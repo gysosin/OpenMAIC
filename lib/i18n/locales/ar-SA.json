@@ -866,6 +866,7 @@
     "voiceInput": "إدخال صوتي",
     "voiceInputDisabled": "الإدخال الصوتي معطّل",
     "textInput": "إدخال نصي",
+    "send": "إرسال",
     "stopRecording": "إيقاف التسجيل",
     "startRecording": "بدء التسجيل"
   },

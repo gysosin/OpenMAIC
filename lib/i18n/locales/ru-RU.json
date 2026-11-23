@@ -866,6 +866,7 @@
     "voiceInput": "Голосовой ввод",
     "voiceInputDisabled": "Голосовой ввод отключён",
     "textInput": "Текстовый ввод",
+    "send": "Отправить",
     "stopRecording": "Остановить запись",
     "startRecording": "Начать запись"
   },
