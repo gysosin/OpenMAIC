@@ -44,7 +44,9 @@ async function outlineEvents(requirements: Record<string, unknown>) {
   return events;
 }
 
-describe('task-engine outline step', () => {
+// Every test resets modules and cold-imports the outline step (2-3 s alone, more under
+// full-suite load), so the 5 s default timeout is too tight.
+describe('task-engine outline step', { timeout: 20_000 }, () => {
   beforeEach(() => {
     originalVocationalFlag = process.env[VOCATIONAL_FLAG];
     delete process.env[VOCATIONAL_FLAG];
